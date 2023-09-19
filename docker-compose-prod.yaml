@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+  hexathon-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hexathon-api
+    ports:
+      - 3000:3000
+    volumes:
+      - ./:/user/src/app
+    env_file:
+      - ./hexathon-api/.env/.production
+    depends_on:
+      - postgres
+    networks:
+      - hexathon-network
+    restart: always
+
+  postgres:
+    image: postgres
+    container_name: hexathon-postgres
+    volumes:
+      - postgres-db:/var/lib/postgresql/data
+    env_file:
+      - ./hexathon-api/.env/.production
+    ports:
+      - 5432:5432
+    networks:
+      - hexathon-network
+  
+  # Generating SSL certificates using traefik
+  traefik:
+    build:
+      context: .
+      dockerfile: ./traefik/Dockerfile
+    container_name: hexathon-traefik
+    depends_on:
+      - hexathon-api
+    volumes:
+      - traefik-volume:/etc/traefik/acme:z
+    ports:
+      - "0.0.0.0:80:80"
+      - "0.0.0.0:443:443"
+      - "0.0.0.0:5555:5555"
+    networks:
+      - hexathon-network
+
+volumes:
+  postgres-db:
+  traefik-volume:
+
+networks:
+  hexathon-network:
