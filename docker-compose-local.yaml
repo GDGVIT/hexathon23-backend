@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  hexathon-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hexathon-api
+    ports:
+      - 80:3000
+    volumes:
+      - ./:/user/src/app
+    env_file:
+      - ./hexathon-api/.env/.local
+    depends_on:
+      - postgres
+    networks:
+      - hexathon-network
+    restart: always
+
+  postgres:
+    image: postgres
+    container_name: hexathon-postgres
+    volumes:
+      - postgres-db:/var/lib/postgresql/data
+    env_file:
+      - ./hexathon-api/.env/.local
+    ports:
+      - 5432:5432
+    networks:
+      - hexathon-network
+      
+volumes:
+  postgres-db:
+
+networks:
+  hexathon-network:
