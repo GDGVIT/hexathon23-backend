@@ -60,10 +60,10 @@ func GetTeamFromJWTToken(tokenString string, jwtKey string) (models.Team, error)
 	if err != nil {
 		return team, err
 	}
-	if database.DB.Where("id = ?", claims["team_id"]).First(&team).RowsAffected == 0 {
+	if database.DB.Where("name = ?", claims["team_name"]).First(&team).RowsAffected == 0 {
 		return team, errors.New("request made by invalid team")
 	}
 
-	database.DB.Where("id = ?", claims["team_id"]).Preload(clause.Associations).First(&team)
+	database.DB.Where("name = ?", claims["team_name"]).Preload(clause.Associations).First(&team)
 	return team, nil
 }
