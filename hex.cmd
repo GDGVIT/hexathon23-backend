@@ -34,6 +34,7 @@ if "%command%"=="" (
     echo   up: Start the server
     echo   down: Stop the server
     echo   restart: Restart the server
+    echo   recreatedb: Recreate all the tables in database
     echo   cli: Run a command inside the container
     exit /b 1
 )
@@ -56,6 +57,15 @@ REM Restart server command
 if "%command%"=="restart" (
     echo Restarting server
     docker compose -f "%file%" down
+    docker compose -f "%file%" up -d --build
+    exit /b 1
+)
+
+REM Drop all DB tables
+if "%command%"=="recreatedb" (
+    echo Dropping all tables
+    docker compose -f "%file%" run --rm postgres psql -U postgres -d postgres -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+    echo Restarting server
     docker compose -f "%file%" up -d --build
     exit /b 1
 )
