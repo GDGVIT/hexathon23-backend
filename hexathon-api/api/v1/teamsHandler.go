@@ -155,7 +155,7 @@ func getTeams(c *fiber.Ctx) error {
 			"detail": "Internal Server Error",
 		})
 	}
-	return c.JSON(schemas.TeamListSerializer(teams))
+	return c.Status(fiber.StatusOK).JSON(schemas.TeamListSerializer(teams))
 }
 
 // Get a team by id
@@ -166,7 +166,7 @@ func getTeam(c *fiber.Ctx) error {
 			"detail": "Team not found",
 		})
 	}
-	return c.JSON(schemas.TeamSerializer(*team))
+	return c.Status(fiber.StatusOK).JSON(schemas.TeamSerializer(*team))
 }
 
 // Update a team by id
@@ -234,7 +234,7 @@ func updateTeam(c *fiber.Ctx) error {
 			"detail": "Internal Server Error",
 		})
 	}
-	return c.JSON(schemas.TeamSerializer(*team))
+	return c.Status(fiber.StatusAccepted).JSON(schemas.TeamSerializer(*team))
 }
 
 // Delete a team by id
