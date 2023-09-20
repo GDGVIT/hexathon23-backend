@@ -9,9 +9,13 @@ import (
 // InitializeModels creates or migrates all the models
 func InitializeModels() {
 	MODELS := map[string]interface{}{
-		"Team":     &Team{},
-		"Item":     &Item{},
-		"Category": &Category{},
+		"Team":             &Team{},
+		"Item":             &Item{},
+		"Category":         &Category{},
+		"Transaction":      &Transaction{},
+		"Submission":       &Submission{},
+		"ProblemStatement": &ProblemStatement{},
+		"Cart":             &Cart{},
 	}
 
 	for name, model := range MODELS {
