@@ -1,9 +1,14 @@
 package schemas
 
-import "github.com/GDGVIT/hexathon23-backend/hexathon-api/internal/models"
+import (
+	"github.com/GDGVIT/hexathon23-backend/hexathon-api/internal/database"
+	"github.com/GDGVIT/hexathon23-backend/hexathon-api/internal/models"
+)
 
 // Item Serializer for displaying item data
 func ItemSerializer(item models.Item) map[string]interface{} {
+	// Preload category
+	database.DB.Model(&item).Preload("Category").First(&item)
 	return map[string]interface{}{
 		"id":            item.ID,
 		"name":          item.Name,

@@ -8,7 +8,7 @@ func TeamSerializer(team models.Team) map[string]interface{} {
 		"id":          team.ID,
 		"name":        team.Name,
 		"logo":        team.Logo,
-		"members":     team.Members,
+		"members":     team.GetMembers(),
 		"role":        team.Role,
 		"amount":      team.Amount,
 		"items":       ItemListSerializer(team.ItemsPurchased),
@@ -42,11 +42,24 @@ func TeamLoginSerializer(team models.Team, token string) map[string]interface{} 
 		"id":          team.ID,
 		"name":        team.Name,
 		"logo":        team.Logo,
-		"members":     team.Members,
+		"members":     team.GetMembers(),
 		"role":        team.Role,
 		"amount":      team.Amount,
 		"items":       ItemListSerializer(team.ItemsPurchased),
 		"items_count": len(team.ItemsPurchased),
 		"token":       token,
+	}
+}
+
+// TeamCredentialsSerializer for displaying team data after generating credentials
+func TeamCredentialsSerializer(team models.Team, password string) map[string]interface{} {
+	return map[string]interface{}{
+		"id":       team.ID,
+		"name":     team.Name,
+		"logo":     team.Logo,
+		"members":  team.GetMembers(),
+		"role":     team.Role,
+		"amount":   team.Amount,
+		"password": password,
 	}
 }

@@ -6,18 +6,18 @@ import (
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/internal/database"
 )
 
+var MODELS map[string]interface{} = map[string]interface{}{
+	"Team":             &Team{},
+	"Item":             &Item{},
+	"Category":         &Category{},
+	"Transaction":      &Transaction{},
+	"Submission":       &Submission{},
+	"ProblemStatement": &ProblemStatement{},
+	"Cart":             &Cart{},
+}
+
 // InitializeModels creates or migrates all the models
 func InitializeModels() {
-	MODELS := map[string]interface{}{
-		"Team":             &Team{},
-		"Item":             &Item{},
-		"Category":         &Category{},
-		"Transaction":      &Transaction{},
-		"Submission":       &Submission{},
-		"ProblemStatement": &ProblemStatement{},
-		"Cart":             &Cart{},
-	}
-
 	for name, model := range MODELS {
 		err := database.DB.AutoMigrate(model)
 		if err != nil {

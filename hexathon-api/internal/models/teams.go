@@ -9,14 +9,17 @@ import (
 
 // Team is the db model for teams table
 type Team struct {
-	ID             uuid.UUID `gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
-	Name           string    `gorm:"unique;not null"`
-	Password       string    `gorm:"not null"`
-	Logo           string
-	Members        string
-	Role           string `gorm:"default:participant"`
-	Amount         int    `gorm:"default:0"`
-	ItemsPurchased []Item `gorm:"many2many:team_items;"`
+	ID                   uuid.UUID `gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
+	Name                 string    `gorm:"unique;not null"`
+	Password             string    `gorm:"not null"`
+	Logo                 string
+	Members              string
+	Role                 string           `gorm:"default:participant"`
+	Amount               int              `gorm:"default:0"`
+	ProblemStatement     ProblemStatement `gorm:"foreignKey:ProblemStatementID;references:ID"`
+	ProblemStatementID   *uuid.UUID
+	StatementGenerations int    `gorm:"default:3"`
+	ItemsPurchased       []Item `gorm:"many2many:team_items;"`
 }
 
 // SetMembers sets the members of a team
@@ -53,9 +56,9 @@ func GetTeamByID(id string) (*Team, error) {
 
 // CheckTeamNameExists checks if a team name exists
 func CheckTeamNameExists(name string) bool {
-	var team Team
-	database.DB.Where("name = ?", name).First(&team)
-	return team.Name != ""
+	var count int64
+	database.DB.Model(&Team{}).Where("name = ?", name).Count(&count)
+	return count > 0
 }
 
 // ValidateTeamPassword validates a team password
