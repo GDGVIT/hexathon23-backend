@@ -10,9 +10,8 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func CreateJWTToken(team_id string, team_name string, role string, jwtKey string) (string, error) {
+func CreateJWTToken(team_name string, role string, jwtKey string) (string, error) {
 	claims := jwt.MapClaims{}
-	claims["team_id"] = team_id
 	claims["team_name"] = team_name
 	claims["role"] = role
 

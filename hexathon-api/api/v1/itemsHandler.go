@@ -8,13 +8,14 @@ import (
 func itemsHandler(r fiber.Router) {
 	group := r.Group("/items")
 	group.Use(middleware.JWTAuthMiddleware)
+	group.Use(middleware.IsAdminMiddleware)
 
 	// Routes
-	group.Post("/", createItem)
-	group.Get("/", getItems)
-	group.Get("/:id", getItem)
-	group.Put("/:id", updateItem)
-	group.Delete("/:id", deleteItem)
+	group.Post("/", createItem)      // <server-url>/api/v1/items/
+	group.Get("/", getItems)         // <server-url>/api/v1/items/
+	group.Get("/:id", getItem)       // <server-url>/api/v1/items/:id
+	group.Put("/:id", updateItem)    // <server-url>/api/v1/items/:id
+	group.Delete("/:id", deleteItem) // <server-url>/api/v1/items/:id
 }
 
 // Create a new item
