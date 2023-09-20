@@ -56,9 +56,9 @@ func GetTeamByID(id string) (*Team, error) {
 
 // CheckTeamNameExists checks if a team name exists
 func CheckTeamNameExists(name string) bool {
-	var team Team
-	database.DB.Where("name = ?", name).First(&team)
-	return team.Name != ""
+	var count int64
+	database.DB.Model(&Team{}).Where("name = ?", name).Count(&count)
+	return count > 0
 }
 
 // ValidateTeamPassword validates a team password
