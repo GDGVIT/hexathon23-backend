@@ -44,7 +44,7 @@ var teamsCommands = []*cli.Command{{
 // Creates an admin team with the given name and password
 func createAdminTeam(c *cli.Context) error {
 	var teamName string
-	var teamPassword string
+	var pwd string
 
 	fmt.Println("Enter team name: ")
 	fmt.Scanln(&teamName)
@@ -55,14 +55,23 @@ func createAdminTeam(c *cli.Context) error {
 	}
 
 	fmt.Println("Enter team password: ")
-	fmt.Scanln(&teamPassword)
+	fmt.Scanln(&pwd)
+
+	// Encrypt the password
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(pwd), bcrypt.DefaultCost)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	teamPassword := string(passwordHash)
 
 	team := models.Team{
 		Name:     teamName,
 		Password: teamPassword,
 		Role:     "admin",
 	}
-	err := team.CreateTeam()
+	err = team.CreateTeam()
 	if err != nil {
 		fmt.Println(err)
 		return nil
