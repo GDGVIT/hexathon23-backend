@@ -9,14 +9,17 @@ import (
 
 // Team is the db model for teams table
 type Team struct {
-	ID             uuid.UUID `gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
-	Name           string    `gorm:"unique;not null"`
-	Password       string    `gorm:"not null"`
-	Logo           string
-	Members        string
-	Role           string `gorm:"default:participant"`
-	Amount         int    `gorm:"default:0"`
-	ItemsPurchased []Item `gorm:"many2many:team_items;"`
+	ID                   uuid.UUID `gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
+	Name                 string    `gorm:"unique;not null"`
+	Password             string    `gorm:"not null"`
+	Logo                 string
+	Members              string
+	Role                 string           `gorm:"default:participant"`
+	Amount               int              `gorm:"default:0"`
+	ProblemStatement     ProblemStatement `gorm:"foreignKey:ProblemStatementID;references:ID"`
+	ProblemStatementID   string           `gorm:"default:null"`
+	StatementGenerations int              `gorm:"default:3"`
+	ItemsPurchased       []Item           `gorm:"many2many:team_items;"`
 }
 
 // SetMembers sets the members of a team
