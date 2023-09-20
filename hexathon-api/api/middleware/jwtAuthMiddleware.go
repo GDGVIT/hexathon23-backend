@@ -27,5 +27,6 @@ func JWTAuthMiddleware(c *fiber.Ctx) error {
 
 	// Add the team to the context
 	c.Locals("team", team)
+	c.Locals("role", team.Role)
 	return c.Next()
 }
