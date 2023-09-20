@@ -17,9 +17,9 @@ type Team struct {
 	Role                 string           `gorm:"default:participant"`
 	Amount               int              `gorm:"default:0"`
 	ProblemStatement     ProblemStatement `gorm:"foreignKey:ProblemStatementID;references:ID"`
-	ProblemStatementID   string           `gorm:"default:null"`
-	StatementGenerations int              `gorm:"default:3"`
-	ItemsPurchased       []Item           `gorm:"many2many:team_items;"`
+	ProblemStatementID   *uuid.UUID
+	StatementGenerations int    `gorm:"default:3"`
+	ItemsPurchased       []Item `gorm:"many2many:team_items;"`
 }
 
 // SetMembers sets the members of a team

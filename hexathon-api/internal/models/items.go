@@ -10,5 +10,5 @@ type Item struct {
 	Description string
 	Price       int
 	Category    Category `gorm:"foreignKey:CategoryID"`
-	CategoryID  string
+	CategoryID  uuid.UUID
 }

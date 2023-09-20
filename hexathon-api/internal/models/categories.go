@@ -8,5 +8,5 @@ type Category struct {
 	Name        string    `gorm:"unique;not null"`
 	PhotoURL    string
 	Description string
-	Items       []Item `gorm:"foreignKey:CategoryID"`
+	Items       []Item
 }
