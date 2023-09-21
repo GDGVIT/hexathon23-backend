@@ -1,8 +1,6 @@
 package models
 
 import (
-	"strings"
-
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/internal/database"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -15,7 +13,7 @@ type Team struct {
 	Name                 string    `gorm:"unique;not null"`
 	Password             string    `gorm:"not null"`
 	Logo                 string
-	Members              string
+	Members              []Participant
 	Role                 string           `gorm:"default:participant"`
 	Amount               int              `gorm:"default:0"`
 	ProblemStatement     ProblemStatement `gorm:"foreignKey:ProblemStatementID;references:ID;constraint:OnDelete:CASCADE;"`
@@ -26,13 +24,16 @@ type Team struct {
 }
 
 // SetMembers sets the members of a team
-func (team *Team) SetMembers(members []string) {
-	team.Members = strings.Join(members, ",")
-}
-
-// GetMembers returns a list of members
-func (team *Team) GetMembers() []string {
-	return strings.Split(team.Members, ",")
+func (team *Team) SetMembers(membersIDs []string) {
+	var members []Participant
+	for _, memberID := range membersIDs {
+		member, _ := GetParticipantByID(memberID)
+		member.CheckedIn = true
+		member.UpdateParticipant()
+		members = append(members, *member)
+	}
+	team.Members = members
+	team.UpdateTeam()
 }
 
 // GetCart returns the cart of a team

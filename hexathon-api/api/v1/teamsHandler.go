@@ -86,8 +86,8 @@ func createAdminTeam(c *fiber.Ctx) error {
 // Create a new team(Different from register as done from admin side)
 func createTeam(c *fiber.Ctx) error {
 	var requestBody struct {
-		Name    string   `json:"name"`
-		Members []string `json:"members"`
+		Name      string   `json:"name"`
+		MemberIDs []string `json:"member_ids"`
 	}
 
 	if err := c.BodyParser(&requestBody); err != nil {
@@ -138,7 +138,6 @@ func createTeam(c *fiber.Ctx) error {
 		Name:     requestBody.Name,
 		Password: pwd,
 	}
-	team.SetMembers(requestBody.Members)
 
 	err = team.CreateTeam()
 	if err != nil {
@@ -146,6 +145,8 @@ func createTeam(c *fiber.Ctx) error {
 			"detail": "Internal Server Error",
 		})
 	}
+	team.SetMembers(requestBody.MemberIDs)
+
 	return c.Status(fiber.StatusCreated).JSON(schemas.TeamCredentialsSerializer(team, pwd))
 }
 

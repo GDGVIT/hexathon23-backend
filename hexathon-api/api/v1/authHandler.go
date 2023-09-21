@@ -21,9 +21,9 @@ func authHandler(r fiber.Router) {
 // Create a team with the given name and password
 func register(c *fiber.Ctx) error {
 	var requestBody struct {
-		Name     string   `json:"name"`
-		Password string   `json:"password"`
-		Members  []string `json:"members"`
+		Name      string   `json:"name"`
+		Password  string   `json:"password"`
+		MemberIDs []string `json:"member_ids"`
 	}
 
 	if err := c.BodyParser(&requestBody); err != nil {
@@ -65,7 +65,6 @@ func register(c *fiber.Ctx) error {
 		Name:     requestBody.Name,
 		Password: requestBody.Password,
 	}
-	team.SetMembers(requestBody.Members)
 
 	err := team.CreateTeam()
 	if err != nil {
@@ -73,6 +72,7 @@ func register(c *fiber.Ctx) error {
 			"detail": "Error while creating team",
 		})
 	}
+	team.SetMembers(requestBody.MemberIDs)
 
 	token, err := auth.CreateJWTToken(team.Name, team.Role, auth.JWTSecret)
 	if err != nil {
