@@ -28,6 +28,16 @@ func (cart *Cart) UpdateCart() error {
 	return database.DB.Session(&gorm.Session{FullSaveAssociations: true}).Save(cart).Error
 }
 
+// CheckItemInCart checks if an item is in the cart
+func (cart *Cart) CheckItemInCart(item Item) bool {
+	for _, cartItem := range cart.Items {
+		if cartItem.ID == item.ID {
+			return true
+		}
+	}
+	return false
+}
+
 // AddToCart adds an item to the cart
 func (cart *Cart) AddToCart(item Item) error {
 	if cart.CheckedOut {

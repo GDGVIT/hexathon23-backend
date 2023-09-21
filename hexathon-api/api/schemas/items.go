@@ -27,3 +27,21 @@ func ItemListSerializer(items []models.Item) []map[string]interface{} {
 
 	return result
 }
+
+// ItemCartSerializer for displaying item data and checking if item is in team cart
+func ItemCartSerializer(item models.Item, cart models.Cart) map[string]interface{} {
+	itemSerializer := ItemSerializer(item)
+	itemSerializer["in_cart"] = cart.CheckItemInCart(item)
+	return itemSerializer
+}
+
+// ItemCartListSerializer for displaying list of items and checking if item is in team cart
+func ItemCartListSerializer(items []models.Item, cart models.Cart) []map[string]interface{} {
+	var result []map[string]interface{}
+
+	for _, item := range items {
+		result = append(result, ItemCartSerializer(item, cart))
+	}
+
+	return result
+}
