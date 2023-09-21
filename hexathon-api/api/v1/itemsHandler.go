@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// ItemsHandler handles all the routes related to items
 func itemsHandler(r fiber.Router) {
 	group := r.Group("/items")
 
@@ -71,6 +72,9 @@ func createItem(c *fiber.Ctx) error {
 	}
 
 	item, err = models.GetItemByID(item.ID.String())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+	}
 
 	return c.Status(fiber.StatusCreated).JSON(schemas.ItemSerializer(*item))
 }
@@ -169,6 +173,9 @@ func updateItem(c *fiber.Ctx) error {
 	}
 
 	item, err = models.GetItemByID(item.ID.String())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+	}
 
 	return c.Status(fiber.StatusOK).JSON(schemas.ItemSerializer(*item))
 }
