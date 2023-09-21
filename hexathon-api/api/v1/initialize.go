@@ -12,6 +12,7 @@ func V1handler(r fiber.Router) {
 	teamsHandler(group)
 	problemStatementHandler(group)
 	authHandler(group)
+	submissionsHandler(group)
 	cartHandler(group)
 
 }

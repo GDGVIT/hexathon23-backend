@@ -22,6 +22,7 @@ type Team struct {
 	ProblemStatementID   *uuid.UUID
 	StatementGenerations int    `gorm:"default:3"`
 	ItemsPurchased       []Item `gorm:"many2many:team_items;"`
+	Submitted            bool	`gorm:"default:false"`
 }
 
 // SetMembers sets the members of a team
