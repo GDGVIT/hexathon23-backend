@@ -15,9 +15,9 @@ func NewWebApi() *fiber.App {
 	app.Use(cors.New(
 		cors.Config{
 			AllowOrigins:     "*",
-			AllowHeaders:     "Origin, Content-Type, Accept",
+			AllowHeaders:     "*",
 			AllowCredentials: true,
-			AllowMethods:     "GET,POST,DELETE,PATCH,PUT,OPTIONS",
+			AllowMethods:     "*",
 		},
 	))
 
