@@ -27,8 +27,15 @@ var participantCommands = []*cli.Command{{
 }}
 
 func loadParticipants(c *cli.Context) error {
+	path := c.Args().Get(0)
+
+	if path == "" {
+		fmt.Println("Please provide a path")
+		fmt.Scanln(&path)
+	}
+
 	// Read the file to load data from
-	fd, err := os.Open(c.Args().Get(0))
+	fd, err := os.Open(path)
 
 	if err != nil {
 		fmt.Println(err)
@@ -44,6 +51,11 @@ func loadParticipants(c *cli.Context) error {
 	}
 
 	for _, record := range records {
+		// Check if participant already exists
+		if models.CheckParticipantExists(record[user_reg_no]) {
+			fmt.Println("Participant already exists")
+			continue
+		}
 
 		// Each record is made into a participant object
 		participant := &models.Participant{
@@ -56,7 +68,6 @@ func loadParticipants(c *cli.Context) error {
 
 		if err != nil {
 			fmt.Println(err)
-			return nil
 		}
 	}
 	fmt.Println("Load successfull")

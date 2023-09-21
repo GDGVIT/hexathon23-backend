@@ -36,6 +36,7 @@ if [ -z "$command" ]; then
     echo "  down: Stop the server"
     echo "  restart: Restart the server"
     echo "  recreatedb: Recreate all the tables in database"
+    echo "  copy: Copy a file to the hexathon api container"
     echo "  cli: Run a command inside the container"
     exit 1
 fi
@@ -68,6 +69,13 @@ if [ "$command" = "recreatedb" ]; then
     docker exec -it hexathon-postgres psql -U postgres -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
     echo "Restarting server"
     docker compose -f "$file" up -d --build
+    exit 1
+fi
+
+# Copy file to hexathon api container
+if [ "$command" = "copy" ]; then
+    shift # Discard the first argument
+    docker cp "$1" hexathon-api:/"$1"
     exit 1
 fi
 
