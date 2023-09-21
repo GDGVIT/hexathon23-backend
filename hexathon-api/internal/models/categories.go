@@ -13,6 +13,7 @@ type Category struct {
 	PhotoURL    string
 	Description string
 	Items       []Item
+	MaxItems    int `gorm:"default:3"`
 }
 
 // CreateCategory creates a new category
