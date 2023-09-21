@@ -11,14 +11,15 @@ import (
 
 func teamsHandler(r fiber.Router) {
 	group := r.Group("/teams")
-	group.Use(middleware.JWTAuthMiddleware)
-	group.Use(middleware.IsAdminMiddleware)
 
 	// Routes
+	group.Use(middleware.JWTAuthMiddleware)
+	group.Get("/", getTeams)     // <server-url>/api/v1/teams/
+	group.Get("/:name", getTeam) // <server-url>/api/v1/teams/:id
+
+	group.Use(middleware.IsAdminMiddleware)
 	group.Post("/admin", createAdminTeam) // <server-url>/api/v1/teams/admin
 	group.Post("/", createTeam)           // <server-url>/api/v1/teams/
-	group.Get("/", getTeams)              // <server-url>/api/v1/teams/
-	group.Get("/:name", getTeam)          // <server-url>/api/v1/teams/:id
 	group.Put("/:name", updateTeam)       // <server-url>/api/v1/teams/:id
 	group.Delete("/:name", deleteTeam)    // <server-url>/api/v1/teams/:id
 }
