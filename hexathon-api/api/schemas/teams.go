@@ -63,3 +63,17 @@ func TeamCredentialsSerializer(team models.Team, password string) map[string]int
 		"password": password,
 	}
 }
+
+// TeamCheckoutSerializer for displaying team data after checkout
+func TeamCheckoutSerializer(team models.Team) map[string]interface{} {
+	return map[string]interface{}{
+		"id":          team.ID,
+		"name":        team.Name,
+		"logo":        team.Logo,
+		"members":     team.GetMembers(),
+		"role":        team.Role,
+		"amount":      team.Amount,
+		"items":       CartItemsSerializer(team.ItemsPurchased),
+		"items_count": len(team.ItemsPurchased),
+	}
+}
