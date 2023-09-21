@@ -3,6 +3,7 @@ package models
 import (
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/internal/database"
 	"github.com/google/uuid"
+	"gorm.io/gorm/clause"
 )
 
 // Item is the db model for items table
@@ -39,13 +40,13 @@ func ValidateItemName(name string) bool {
 // GetItemByID returns an item by id
 func GetItemByID(id string) (*Item, error) {
 	var item Item
-	err := database.DB.Where("id = ?", id).First(&item).Error
+	err := database.DB.Preload(clause.Associations).Where("id = ?", id).First(&item).Error
 	return &item, err
 }
 
 // GetItems returns a list of all items
 func GetItems() ([]Item, error) {
 	var items []Item
-	err := database.DB.Find(&items).Error
+	err := database.DB.Preload(clause.Associations).Find(&items).Error
 	return items, err
 }

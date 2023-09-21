@@ -3,6 +3,7 @@ package models
 import (
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/internal/database"
 	"github.com/google/uuid"
+	"gorm.io/gorm/clause"
 )
 
 // Category is the db model for categories table
@@ -30,7 +31,7 @@ func (category *Category) DeleteCategory() error {
 }
 
 // CheckCategoryExists checks if a category exists
-func CheckCategoryExists(id uuid.UUID) bool {
+func CheckCategoryExists(id string) bool {
 	var count int64
 	database.DB.Model(&Category{}).Where("id = ?", id).Count(&count)
 	return count > 0
@@ -44,13 +45,13 @@ func ValidateCategoryName(name string) bool {
 // GetCategoryByID returns a category by id
 func GetCategoryByID(id string) (*Category, error) {
 	var category Category
-	err := database.DB.Where("id = ?", id).First(&category).Error
+	err := database.DB.Preload(clause.Associations).Where("id = ?", id).First(&category).Error
 	return &category, err
 }
 
 // GetCategories returns a list of all categories
 func GetCategories() ([]Category, error) {
 	var categories []Category
-	err := database.DB.Find(&categories).Error
+	err := database.DB.Preload(clause.Associations).Find(&categories).Error
 	return categories, err
 }
