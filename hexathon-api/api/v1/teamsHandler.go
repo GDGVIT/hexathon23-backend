@@ -13,10 +13,11 @@ func teamsHandler(r fiber.Router) {
 
 	// Routes
 	group.Use(middleware.JWTAuthMiddleware)
-	group.Get("/", getTeams)     // <server-url>/api/v1/teams/
-	group.Get("/:name", getTeam) // <server-url>/api/v1/teams/:id
+	group.Get("/me", getMyTeam) // <server-url>/api/v1/teams/me
 
 	group.Use(middleware.IsAdminMiddleware)
+	group.Get("/", getTeams)              // <server-url>/api/v1/teams/
+	group.Get("/:name", getTeam)          // <server-url>/api/v1/teams/:id
 	group.Post("/admin", createAdminTeam) // <server-url>/api/v1/teams/admin
 	group.Post("/", createTeam)           // <server-url>/api/v1/teams/
 	group.Put("/:name", updateTeam)       // <server-url>/api/v1/teams/:id
@@ -253,4 +254,9 @@ func deleteTeam(c *fiber.Ctx) error {
 		})
 	}
 	return c.SendStatus(fiber.StatusNoContent)
+}
+
+// Get my team
+func getMyTeam(c *fiber.Ctx) error {
+	return c.Status(fiber.StatusOK).JSON(schemas.TeamSerializer(c.Locals("team").(models.Team)))
 }
