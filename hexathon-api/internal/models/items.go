@@ -50,3 +50,10 @@ func GetItems() ([]Item, error) {
 	err := database.DB.Preload(clause.Associations).Find(&items).Error
 	return items, err
 }
+
+// GetItemsByCategoryID returns a list of all items by category id
+func GetItemsByCategoryID(id string) ([]Item, error) {
+	var items []Item
+	err := database.DB.Preload(clause.Associations).Where("category_id = ?", id).Find(&items).Error
+	return items, err
+}

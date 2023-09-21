@@ -77,7 +77,17 @@ func createItem(c *fiber.Ctx) error {
 
 // Get a list of all items
 func getItems(c *fiber.Ctx) error {
-	items, err := models.GetItems()
+	var items []models.Item
+	var err error
+	// Check if query params exist
+	if c.Query("category") != "" {
+		items, err = models.GetItemsByCategoryID(c.Query("category"))
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		}
+	} else {
+		items, err = models.GetItems()
+	}
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
 	}
