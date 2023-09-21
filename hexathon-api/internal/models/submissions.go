@@ -13,7 +13,7 @@ type Submission struct {
 	CreatedAt          time.Time
 	Team               Team `gorm:"foreignKey:TeamID"`
 	TeamID             uuid.UUID
-	ProblemStatement   ProblemStatement `gorm:"foreignKey:ProblemStatementID"`
+	ProblemStatement   ProblemStatement `gorm:"foreignKey:ProblemStatementID;references:ID"`
 	ProblemStatementID uuid.UUID
 	FigmaURL           string
 	DocURL             string

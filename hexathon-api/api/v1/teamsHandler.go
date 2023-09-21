@@ -8,6 +8,7 @@ import (
 	"github.com/sethvargo/go-password/password"
 )
 
+// TeamsHandler handles all the routes related to teams
 func teamsHandler(r fiber.Router) {
 	group := r.Group("/teams")
 
@@ -258,5 +259,5 @@ func deleteTeam(c *fiber.Ctx) error {
 
 // Get my team
 func getMyTeam(c *fiber.Ctx) error {
-	return c.Status(fiber.StatusOK).JSON(schemas.TeamSerializer(c.Locals("team").(models.Team)))
+	return c.Status(fiber.StatusOK).JSON(schemas.TeamCheckoutSerializer(c.Locals("team").(models.Team)))
 }

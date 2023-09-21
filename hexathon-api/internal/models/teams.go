@@ -18,11 +18,11 @@ type Team struct {
 	Members              string
 	Role                 string           `gorm:"default:participant"`
 	Amount               int              `gorm:"default:0"`
-	ProblemStatement     ProblemStatement `gorm:"foreignKey:ProblemStatementID;references:ID"`
+	ProblemStatement     ProblemStatement `gorm:"foreignKey:ProblemStatementID;references:ID;constraint:OnDelete:CASCADE;"`
 	ProblemStatementID   *uuid.UUID
 	StatementGenerations int    `gorm:"default:3"`
 	ItemsPurchased       []Item `gorm:"many2many:team_items;"`
-	Submitted            bool	`gorm:"default:false"`
+	Submitted            bool   `gorm:"default:false"`
 }
 
 // SetMembers sets the members of a team
@@ -35,10 +35,35 @@ func (team *Team) GetMembers() []string {
 	return strings.Split(team.Members, ",")
 }
 
+// GetCart returns the cart of a team
+func (team *Team) GetCart() (*Cart, error) {
+	var cart Cart
+	err := database.DB.Preload(clause.Associations).Where("team_id = ?", team.ID).First(&cart).Error
+	return &cart, err
+}
+
+// SetItemsPurchased sets the items purchased by a team
+func (team *Team) SetItemsPurchased(items []Item) {
+	team.ItemsPurchased = items
+}
+
 // CreateTeam creates a new team
 func (team *Team) CreateTeam() error {
 	team.Amount = DEFAULT_AMOUNT
-	return database.DB.Create(team).Error
+	err := database.DB.Create(team).Error
+	if err != nil {
+		return err
+	}
+	// Create a cart for the team
+	cart := Cart{
+		TeamID: team.ID,
+	}
+	err = cart.CreateCart()
+	if err != nil {
+		// Delete the team if cart creation fails
+		database.DB.Delete(team)
+	}
+	return err
 }
 
 // UpdateTeam updates a team

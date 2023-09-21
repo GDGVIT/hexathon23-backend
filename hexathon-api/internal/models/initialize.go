@@ -10,7 +10,6 @@ var MODELS map[string]interface{} = map[string]interface{}{
 	"Team":             &Team{},
 	"Item":             &Item{},
 	"Category":         &Category{},
-	"Transaction":      &Transaction{},
 	"Submission":       &Submission{},
 	"ProblemStatement": &ProblemStatement{},
 	"Cart":             &Cart{},
