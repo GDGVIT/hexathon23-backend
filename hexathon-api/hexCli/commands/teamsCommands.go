@@ -6,7 +6,6 @@ import (
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/internal/models"
 	"github.com/sethvargo/go-password/password"
 	"github.com/urfave/cli/v2"
-	"golang.org/x/crypto/bcrypt"
 )
 
 // teamsCommands is the list of commands related to teams
@@ -58,20 +57,20 @@ func createAdminTeam(c *cli.Context) error {
 	fmt.Scanln(&pwd)
 
 	// Encrypt the password
-	passwordHash, err := bcrypt.GenerateFromPassword([]byte(pwd), bcrypt.DefaultCost)
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
+	// passwordHash, err := bcrypt.GenerateFromPassword([]byte(pwd), bcrypt.DefaultCost)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return nil
+	// }
 
-	teamPassword := string(passwordHash)
+	teamPassword := pwd
 
 	team := models.Team{
 		Name:     teamName,
 		Password: teamPassword,
 		Role:     "admin",
 	}
-	err = team.CreateTeam()
+	err := team.CreateTeam()
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -101,14 +100,15 @@ func createTeam(c *cli.Context) error {
 		return nil
 	}
 
-	// Encrypt the password
-	passwordHash, err := bcrypt.GenerateFromPassword([]byte(pwd), bcrypt.DefaultCost)
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
+	// // Encrypt the password
+	// passwordHash, err := bcrypt.GenerateFromPassword([]byte(pwd), bcrypt.DefaultCost)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return nil
+	// }
 
-	teamPassword = string(passwordHash)
+	// teamPassword = string(passwordHash)
+	teamPassword = pwd
 
 	team := models.Team{
 		Name:     teamName,

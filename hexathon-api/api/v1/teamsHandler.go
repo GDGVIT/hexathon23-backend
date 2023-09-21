@@ -6,7 +6,6 @@ import (
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/internal/models"
 	"github.com/gofiber/fiber/v2"
 	"github.com/sethvargo/go-password/password"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func teamsHandler(r fiber.Router) {
@@ -58,22 +57,22 @@ func createAdminTeam(c *fiber.Ctx) error {
 	}
 
 	// Encrypt the password
-	passwordHash, err := bcrypt.GenerateFromPassword([]byte(requestBody.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"detail": "Internal Server Error",
-		})
-	}
+	// passwordHash, err := bcrypt.GenerateFromPassword([]byte(requestBody.Password), bcrypt.DefaultCost)
+	// if err != nil {
+	// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+	// 		"detail": "Internal Server Error",
+	// 	})
+	// }
 
-	teamPassword := string(passwordHash)
+	// teamPassword := string(passwordHash)
 
 	team := models.Team{
 		Name:     requestBody.Name,
-		Password: teamPassword,
+		Password: requestBody.Password,
 		Role:     "admin",
 	}
 
-	err = team.CreateTeam()
+	err := team.CreateTeam()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"detail": "Internal Server Error",
@@ -124,18 +123,18 @@ func createTeam(c *fiber.Ctx) error {
 	}
 
 	// Encrypt the password
-	passwordHash, err := bcrypt.GenerateFromPassword([]byte(pwd), bcrypt.DefaultCost)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"detail": "Internal Server Error",
-		})
-	}
+	// passwordHash, err := bcrypt.GenerateFromPassword([]byte(pwd), bcrypt.DefaultCost)
+	// if err != nil {
+	// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+	// 		"detail": "Internal Server Error",
+	// 	})
+	// }
 
-	teamPassword := string(passwordHash)
+	// teamPassword := string(passwordHash)
 
 	team := models.Team{
 		Name:     requestBody.Name,
-		Password: teamPassword,
+		Password: pwd,
 	}
 	team.SetMembers(requestBody.Members)
 
@@ -216,14 +215,14 @@ func updateTeam(c *fiber.Ctx) error {
 		}
 
 		// Encrypt the password
-		passwordHash, err := bcrypt.GenerateFromPassword([]byte(requestBody.Password), bcrypt.DefaultCost)
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"detail": "Internal Server Error",
-			})
-		}
+		// passwordHash, err := bcrypt.GenerateFromPassword([]byte(requestBody.Password), bcrypt.DefaultCost)
+		// if err != nil {
+		// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+		// 		"detail": "Internal Server Error",
+		// 	})
+		// }
 
-		team.Password = string(passwordHash)
+		team.Password = requestBody.Password
 	}
 	if requestBody.Members != nil {
 		team.SetMembers(requestBody.Members)
