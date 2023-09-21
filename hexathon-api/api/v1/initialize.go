@@ -7,12 +7,10 @@ func V1handler(r fiber.Router) {
 	group := r.Group("/v1")
 
 	// Register all the handlers
-	// Admin endpoints
 	categoriesHandler(group)
 	itemsHandler(group)
 	teamsHandler(group)
-
-	// User Endpoints
+	problemStatementHandler(group)
 	authHandler(group)
 
 }
