@@ -14,6 +14,7 @@ func problemStatementHandler(r fiber.Router) {
 	group.Use(middleware.JWTAuthMiddleware)
 	group.Get("/team", getProblemStatementForTeam)       // <server-url>/api/v1/problemStatements/team
 	group.Post("/team", generateProblemStatementForTeam) // <server-url>/api/v1/problemStatements/team
+	group.Put("/confirm", confirmProblemStatement)		// <server-url>/api/v1/problemStatements/confirm
 
 	group.Use(middleware.IsAdminMiddleware)
 	group.Get("/", getProblemStatements)         // <server-url>/api/v1/problemStatements/
@@ -165,4 +166,26 @@ func generateProblemStatementForTeam(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(schemas.ProblemStatementGenerationSerializer(*problemStatement, team.StatementGenerations))
+}
+
+func confirmProblemStatement(c *fiber.Ctx) error {
+	team, err := models.GetTeamByName(c.Locals("team").(models.Team).Name)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+	}
+
+	if team == nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"detail": "Team not found",
+		}) 
+	}
+
+	team.StatementGenerations = 0
+	err = team.UpdateTeam()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": "Internal Server Error",
+		})
+	}
+	return c.Status(fiber.StatusAccepted).JSON(schemas.TeamSerializer(*team))
 }
