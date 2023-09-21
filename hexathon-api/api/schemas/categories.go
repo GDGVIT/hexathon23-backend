@@ -9,6 +9,7 @@ func CategorySerializer(category models.Category) map[string]interface{} {
 		"name":        category.Name,
 		"photo_url":   category.PhotoURL,
 		"description": category.Description,
+		"max_items":   category.MaxItems,
 	}
 }
 

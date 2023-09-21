@@ -9,6 +9,7 @@ func ProblemStatementSerializer(problemStatement models.ProblemStatement) map[st
 	return map[string]interface{}{
 		"id":          problemStatement.ID,
 		"name":        problemStatement.Name,
+		"one_liner":   problemStatement.OneLiner,
 		"description": problemStatement.Description,
 	}
 }
@@ -29,7 +30,17 @@ func ProblemStatementGenerationSerializer(problemStatement models.ProblemStateme
 	return map[string]interface{}{
 		"id":               problemStatement.ID,
 		"name":             problemStatement.Name,
+		"one_liner":        problemStatement.OneLiner,
 		"description":      problemStatement.Description,
 		"generations_left": generations,
+	}
+}
+
+// ProblemStatementOneLinerSerializer for displaying problem statement one liner data
+func ProblemStatementOneLinerSerializer(problemStatement models.ProblemStatement) map[string]interface{} {
+	return map[string]interface{}{
+		"id":        problemStatement.ID,
+		"name":      problemStatement.Name,
+		"one_liner": problemStatement.OneLiner,
 	}
 }

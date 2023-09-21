@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// ProblemStatementHandler handles all the routes related to problemStatements
 func problemStatementHandler(r fiber.Router) {
 	group := r.Group("/problemStatements")
 
@@ -48,6 +49,7 @@ func getProblemStatement(c *fiber.Ctx) error {
 func createProblemStatement(c *fiber.Ctx) error {
 	var requestBody struct {
 		Name        string `json:"name"`
+		OneLiner    string `json:"one_liner"`
 		Description string `json:"description"`
 	}
 
@@ -65,6 +67,7 @@ func createProblemStatement(c *fiber.Ctx) error {
 	problemStatement := models.ProblemStatement{
 		Name:        requestBody.Name,
 		Description: requestBody.Description,
+		OneLiner:    requestBody.OneLiner,
 	}
 
 	if err := problemStatement.CreateProblemStatement(); err != nil {
@@ -84,6 +87,7 @@ func updateProblemStatement(c *fiber.Ctx) error {
 	var requestBody struct {
 		Name        string `json:"name"`
 		Description string `json:"description"`
+		OneLiner    string `json:"one_liner"`
 	}
 
 	if err := c.BodyParser(&requestBody); err != nil {
@@ -102,6 +106,10 @@ func updateProblemStatement(c *fiber.Ctx) error {
 
 	if requestBody.Description != "" {
 		problemStatement.Description = requestBody.Description
+	}
+
+	if requestBody.OneLiner != "" {
+		problemStatement.OneLiner = requestBody.OneLiner
 	}
 
 	if err := problemStatement.UpdateProblemStatement(); err != nil {
@@ -136,6 +144,11 @@ func getProblemStatementForTeam(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"detail": "Team not found",
 		})
+	}
+
+	// Check if query param type is present
+	if c.Query("type") == "one_liner" {
+		return c.Status(fiber.StatusOK).JSON(schemas.ProblemStatementOneLinerSerializer(team.ProblemStatement))
 	}
 
 	return c.Status(fiber.StatusOK).JSON(schemas.ProblemStatementGenerationSerializer(team.ProblemStatement, team.StatementGenerations))

@@ -38,6 +38,7 @@ func createCategory(c *fiber.Ctx) error {
 		Name        string `json:"name"`
 		PhotoURL    string `json:"photo_url"`
 		Description string `json:"description"`
+		MaxItems    int    `json:"max_items"`
 	}
 
 	if err := c.BodyParser(&requestBody); err != nil {
@@ -55,6 +56,7 @@ func createCategory(c *fiber.Ctx) error {
 		Name:        requestBody.Name,
 		PhotoURL:    requestBody.PhotoURL,
 		Description: requestBody.Description,
+		MaxItems:    requestBody.MaxItems,
 	}
 
 	if err := category.CreateCategory(); err != nil {
@@ -84,6 +86,7 @@ func updateCategory(c *fiber.Ctx) error {
 		Name        string `json:"name"`
 		PhotoURL    string `json:"photo_url"`
 		Description string `json:"description"`
+		MaxItems    int    `json:"max_items"`
 	}
 
 	if err := c.BodyParser(&requestBody); err != nil {
@@ -108,6 +111,7 @@ func updateCategory(c *fiber.Ctx) error {
 	category.Name = requestBody.Name
 	category.PhotoURL = requestBody.PhotoURL
 	category.Description = requestBody.Description
+	category.MaxItems = requestBody.MaxItems
 
 	if err := category.UpdateCategory(); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
