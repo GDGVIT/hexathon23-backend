@@ -16,8 +16,11 @@ var MODELS map[string]interface{} = map[string]interface{}{
 	"Cart":             &Cart{},
 }
 
+var DEFAULT_AMOUNT int
+
 // InitializeModels creates or migrates all the models
-func InitializeModels() {
+func InitializeModels(defaultAmount int) {
+	DEFAULT_AMOUNT = defaultAmount
 	for name, model := range MODELS {
 		err := database.DB.AutoMigrate(model)
 		if err != nil {

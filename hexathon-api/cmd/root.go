@@ -3,6 +3,7 @@ package cmd
 import (
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/api"
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/hexCli"
@@ -31,6 +32,9 @@ type Env struct {
 
 	// Auth Variables
 	jwtSecret string
+
+	// Other Variables
+	defaultAmount int
 }
 
 // Create a new HexathonApp
@@ -47,6 +51,12 @@ func (app *HexathonApp) setEnv() {
 	app.env.fiberPort = os.Getenv("FIBER_PORT")
 	app.env.postgresUrl = os.Getenv("POSTGRES_URL")
 	app.env.jwtSecret = os.Getenv("JWT_SECRET")
+
+	var err error
+	app.env.defaultAmount, err = strconv.Atoi(os.Getenv("DEFAULT_AMOUNT"))
+	if err != nil {
+		app.env.defaultAmount = 1000
+	}
 }
 
 // Initialize the CLI app
@@ -76,7 +86,7 @@ func (app *HexathonApp) init() {
 
 	// Initialize the database, models and auth
 	database.Connect(app.env.debug, app.env.postgresUrl)
-	models.InitializeModels()
+	models.InitializeModels(app.env.defaultAmount)
 	auth.InitializeAuth(app.env.jwtSecret)
 
 	// Initialize the Web app

@@ -15,3 +15,7 @@ POSTGRES_PORT=5432
 # Auth Variables
 # ---------------------------------------------------------------
 JWT_SECRET=secret
+
+# Hexathon Variables
+# ---------------------------------------------------------------
+DEFAULT_AMOUNT=1000
