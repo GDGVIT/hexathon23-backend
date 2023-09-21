@@ -8,6 +8,7 @@ import (
 	"github.com/sethvargo/go-password/password"
 )
 
+// TeamsHandler handles all the routes related to teams
 func teamsHandler(r fiber.Router) {
 	group := r.Group("/teams")
 
