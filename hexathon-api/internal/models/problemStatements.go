@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"math/rand"
 	"time"
 
@@ -58,6 +59,9 @@ func GenerateProblemStatementForTeam(team *Team) (*ProblemStatement, error) {
 	problemStatements, err := GetProblemStatements()
 	if err != nil {
 		return nil, err
+	}
+	if len(problemStatements) == 0 {
+		return nil, errors.New("no problem statements found")
 	}
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	problemStatement := problemStatements[r.Intn(len(problemStatements))]
