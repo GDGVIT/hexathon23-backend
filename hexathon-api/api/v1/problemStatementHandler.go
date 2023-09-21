@@ -15,7 +15,7 @@ func problemStatementHandler(r fiber.Router) {
 	group.Use(middleware.JWTAuthMiddleware)
 	group.Get("/team", getProblemStatementForTeam)       // <server-url>/api/v1/problemStatements/team
 	group.Post("/team", generateProblemStatementForTeam) // <server-url>/api/v1/problemStatements/team
-	group.Post("/confirm", confirmProblemStatement)		// <server-url>/api/v1/problemStatements/confirm
+	group.Post("/confirm", confirmProblemStatement)      // <server-url>/api/v1/problemStatements/confirm
 
 	group.Use(middleware.IsAdminMiddleware)
 	group.Get("/", getProblemStatements)         // <server-url>/api/v1/problemStatements/
@@ -191,7 +191,7 @@ func confirmProblemStatement(c *fiber.Ctx) error {
 	if team == nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"detail": "Team not found",
-		}) 
+		})
 	}
 
 	team.StatementGenerations = 0

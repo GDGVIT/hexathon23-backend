@@ -96,7 +96,13 @@ func getItems(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
 	}
 
-	return c.Status(fiber.StatusOK).JSON(schemas.ItemListSerializer(items))
+	team := c.Locals("team").(models.Team)
+	cart, err := team.GetCart()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(schemas.ItemCartListSerializer(items, *cart))
 }
 
 // Get an item by id
