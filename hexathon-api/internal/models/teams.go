@@ -5,6 +5,8 @@ import (
 
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/internal/database"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // Team is the db model for teams table
@@ -34,12 +36,14 @@ func (team *Team) GetMembers() []string {
 
 // CreateTeam creates a new team
 func (team *Team) CreateTeam() error {
+	team.Amount = DEFAULT_AMOUNT
 	return database.DB.Create(team).Error
 }
 
 // UpdateTeam updates a team
 func (team *Team) UpdateTeam() error {
-	return database.DB.Save(team).Error
+	// Save with associations
+	return database.DB.Session(&gorm.Session{FullSaveAssociations: true}).Save(team).Error
 }
 
 // DeleteTeam deletes a team
@@ -120,13 +124,15 @@ func ValidateTeamName(name string) bool {
 // GetTeamByName returns a team by name
 func GetTeamByName(name string) (*Team, error) {
 	var team Team
-	err := database.DB.Where("name = ?", name).First(&team).Error
+	// Preload all clause associations
+	err := database.DB.Preload(clause.Associations).Where("name = ?", name).First(&team).Error
 	return &team, err
 }
 
 // GetTeams returns all teams
 func GetTeams() ([]Team, error) {
 	var teams []Team
-	err := database.DB.Find(&teams).Error
+	// Preload all clause associations
+	err := database.DB.Preload(clause.Associations).Find(&teams).Error
 	return teams, err
 }

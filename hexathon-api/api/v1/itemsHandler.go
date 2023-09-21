@@ -10,13 +10,14 @@ import (
 
 func itemsHandler(r fiber.Router) {
 	group := r.Group("/items")
-	group.Use(middleware.JWTAuthMiddleware)
-	group.Use(middleware.IsAdminMiddleware)
 
 	// Routes
+	group.Use(middleware.JWTAuthMiddleware)
+	group.Get("/", getItems)   // <server-url>/api/v1/items/
+	group.Get("/:id", getItem) // <server-url>/api/v1/items/:id
+
+	group.Use(middleware.IsAdminMiddleware)
 	group.Post("/", createItem)      // <server-url>/api/v1/items/
-	group.Get("/", getItems)         // <server-url>/api/v1/items/
-	group.Get("/:id", getItem)       // <server-url>/api/v1/items/:id
 	group.Put("/:id", updateItem)    // <server-url>/api/v1/items/:id
 	group.Delete("/:id", deleteItem) // <server-url>/api/v1/items/:id
 }
@@ -35,14 +36,6 @@ func createItem(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(schemas.InvalidBody)
 	}
 
-	// String to uuid
-	categoryID, err := uuid.Parse(requestBody.CategoryID)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": "Invalid category id",
-		})
-	}
-
 	// Validate item name
 	if !models.ValidateItemName(requestBody.Name) {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -51,13 +44,21 @@ func createItem(c *fiber.Ctx) error {
 	}
 
 	// Check if category exists
-	if !models.CheckCategoryExists(categoryID) {
+	if !models.CheckCategoryExists(requestBody.CategoryID) {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"detail": "Category does not exist",
 		})
 	}
 
-	item := models.Item{
+	// String to uuid
+	categoryID, err := uuid.Parse(requestBody.CategoryID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"detail": "Invalid category id",
+		})
+	}
+
+	item := &models.Item{
 		Name:        requestBody.Name,
 		PhotoURL:    requestBody.PhotoURL,
 		Description: requestBody.Description,
@@ -69,7 +70,9 @@ func createItem(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(schemas.ItemSerializer(item))
+	item, err = models.GetItemByID(item.ID.String())
+
+	return c.Status(fiber.StatusCreated).JSON(schemas.ItemSerializer(*item))
 }
 
 // Get a list of all items
@@ -112,14 +115,6 @@ func updateItem(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(schemas.InvalidBody)
 	}
 
-	// String to uuid
-	categoryID, err := uuid.Parse(requestBody.CategoryID)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": "Invalid category id",
-		})
-	}
-
 	// Validate item name
 	if !models.ValidateItemName(requestBody.Name) {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -128,7 +123,7 @@ func updateItem(c *fiber.Ctx) error {
 	}
 
 	// Check if category exists
-	if !models.CheckCategoryExists(categoryID) {
+	if !models.CheckCategoryExists(requestBody.CategoryID) {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"detail": "Category does not exist",
 		})
@@ -145,6 +140,14 @@ func updateItem(c *fiber.Ctx) error {
 		})
 	}
 
+	// String to uuid
+	categoryID, err := uuid.Parse(requestBody.CategoryID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"detail": "Invalid category id",
+		})
+	}
+
 	item.Name = requestBody.Name
 	item.PhotoURL = requestBody.PhotoURL
 	item.Description = requestBody.Description
@@ -154,6 +157,8 @@ func updateItem(c *fiber.Ctx) error {
 	if err := item.UpdateItem(); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
 	}
+
+	item, err = models.GetItemByID(item.ID.String())
 
 	return c.Status(fiber.StatusOK).JSON(schemas.ItemSerializer(*item))
 }
