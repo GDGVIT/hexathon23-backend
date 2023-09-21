@@ -13,6 +13,7 @@ var MODELS map[string]interface{} = map[string]interface{}{
 	"Submission":       &Submission{},
 	"ProblemStatement": &ProblemStatement{},
 	"Cart":             &Cart{},
+	"Participants":     &Participant{},
 }
 
 var DEFAULT_AMOUNT int
