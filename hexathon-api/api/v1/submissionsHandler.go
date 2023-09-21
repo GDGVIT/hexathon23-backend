@@ -44,6 +44,12 @@ func submitLinks(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(schemas.InvalidBody)
 	}
 
+	if requestBody.FigmaURL == "" || requestBody.DocURL == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"detail": "Both figmaURL and docURL are required",
+		})
+	}
+
 	submission := &models.Submission{
 		FigmaURL:         requestBody.FigmaURL,
 		DocURL:           requestBody.DocURL,
