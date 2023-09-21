@@ -13,7 +13,7 @@ type Item struct {
 	PhotoURL    string
 	Description string
 	Price       int
-	Category    Category `gorm:"foreignKey:CategoryID"`
+	Category    Category `gorm:"foreignKey:CategoryID;constraint:OnDelete:CASCADE;"`
 	CategoryID  uuid.UUID
 }
 
