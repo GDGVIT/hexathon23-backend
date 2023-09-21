@@ -29,6 +29,12 @@ func submitLinks(c *fiber.Ctx) error {
 		})
 	}
 
+	if team.Submitted {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"detail": "Team has already submitted",
+		})
+	}
+
 	var requestBody struct {
 		FigmaURL string `json:"figmaURL"`
 		DocURL   string `json:"docURL"`
@@ -37,13 +43,6 @@ func submitLinks(c *fiber.Ctx) error {
 	if err := c.BodyParser(&requestBody); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(schemas.InvalidBody)
 	}
-
-	// // Validate Link
-	// if !models.ValidateLink(requestBody.FigmaURL) || !models.ValidateLink(requestBody.DocURL) {
-	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-	// 		"detail": "Invalid link provided",
-	// 	})
-	// }
 
 	submission := &models.Submission{
 		FigmaURL:         requestBody.FigmaURL,
@@ -55,7 +54,15 @@ func submitLinks(c *fiber.Ctx) error {
 	if err := submission.CreateSubmission(); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
 	}
-	
+
+	team.Submitted = true
+	err = team.UpdateTeam()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": "Internal Server Error",
+		})
+	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"detail": "Submission successful",
 	})

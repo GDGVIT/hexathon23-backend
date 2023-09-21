@@ -5,6 +5,7 @@ import (
 
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/internal/database"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type Submission struct {
@@ -18,10 +19,7 @@ type Submission struct {
 	DocURL             string
 }
 
-// func ValidateLink(link string) bool {
-// 	return true
-// }
-
+// Creates a submission
 func (submission *Submission) CreateSubmission() error {
-	return database.DB.Create(submission).Error
+	return database.DB.Session(&gorm.Session{FullSaveAssociations: true}).Create(submission).Error
 }

@@ -168,6 +168,7 @@ func generateProblemStatementForTeam(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(schemas.ProblemStatementGenerationSerializer(*problemStatement, team.StatementGenerations))
 }
 
+// Confirm the problem statement selected
 func confirmProblemStatement(c *fiber.Ctx) error {
 	team, err := models.GetTeamByName(c.Locals("team").(models.Team).Name)
 	if err != nil {
