@@ -16,6 +16,7 @@ func TeamSerializer(team models.Team) map[string]interface{} {
 		"items":             ItemListSerializer(team.ItemsPurchased),
 		"items_count":       len(team.ItemsPurchased),
 		"problem_statement": ProblemStatementSerializer(team.ProblemStatement),
+		"submitted":         team.Submitted,
 	}
 }
 
