@@ -73,9 +73,7 @@ func submitSubmission(c *fiber.Ctx) error {
 				"detail": fmt.Sprintf("Error updating item: %s", err.Error())})
 		}
 
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"detail": "Update successful",
-		})
+		return c.Status(fiber.StatusOK).JSON(schemas.SubmissionSerializer(*submission))
 	} else {
 		submission := &models.Submission{
 			FigmaURL:         requestBody.FigmaURL,
@@ -83,12 +81,12 @@ func submitSubmission(c *fiber.Ctx) error {
 			Team:             *team,
 			ProblemStatement: team.ProblemStatement,
 		}
-	
+
 		if err := submission.CreateSubmission(); err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"detail": fmt.Sprintf("Error creating submission: %s", err.Error())})
 		}
-	
+
 		team.Submitted = true
 		err = team.UpdateTeam()
 		if err != nil {
@@ -96,10 +94,8 @@ func submitSubmission(c *fiber.Ctx) error {
 				"detail": "Internal Server Error",
 			})
 		}
-	
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"detail": "Submission successful",
-		})
+
+		return c.Status(fiber.StatusOK).JSON(schemas.SubmissionSerializer(*submission))
 	}
 }
 
