@@ -25,6 +25,8 @@ type Team struct {
 
 // SetMembers sets the members of a team
 func (team *Team) SetMembers(membersIDs []string) {
+	// Set initially to empty array
+	team.Members = []Participant{}
 	var members []Participant
 	for _, memberID := range membersIDs {
 		member, _ := GetParticipantByID(memberID)
