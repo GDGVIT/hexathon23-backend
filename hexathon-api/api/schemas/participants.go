@@ -5,12 +5,13 @@ import "github.com/GDGVIT/hexathon23-backend/hexathon-api/internal/models"
 // Participant Serializer for displaying participant data
 func ParticipantSerializer(participant models.Participant) map[string]interface{} {
 	return map[string]interface{}{
-		"id":        participant.ID,
-		"name":      participant.Name,
-		"reg_no":    participant.RegNo,
-		"email":     participant.Email,
-		"team_id":   participant.TeamID,
-		"team_name": participant.Team.Name,
+		"id":         participant.ID,
+		"name":       participant.Name,
+		"reg_no":     participant.RegNo,
+		"email":      participant.Email,
+		"team_id":    participant.TeamID,
+		"team_name":  participant.Team.Name,
+		"checked_in": participant.CheckedIn,
 	}
 }
 
