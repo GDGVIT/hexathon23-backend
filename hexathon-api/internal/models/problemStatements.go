@@ -55,6 +55,10 @@ func GenerateProblemStatementForTeam(team *Team) (*ProblemStatement, error) {
 	if team.StatementGenerations <= 0 {
 		return nil, nil
 	}
+	if team.StatementConfirmed {
+		return nil, errors.New("problem statement already confirmed")
+	}
+
 	// Get a random problem statement
 	problemStatements, err := GetProblemStatements()
 	if err != nil {

@@ -43,7 +43,14 @@ func addToCart(c *fiber.Ctx) error {
 		})
 	}
 
-	team := c.Locals("team").(models.Team)
+	cTeam := c.Locals("team").(models.Team)
+	team, err := models.GetTeamByName(cTeam.Name)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting team: %s", err.Error()),
+		})
+	}
+
 	cart, err := team.GetCart()
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
