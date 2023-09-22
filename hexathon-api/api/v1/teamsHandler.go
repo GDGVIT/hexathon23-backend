@@ -184,9 +184,9 @@ func updateTeam(c *fiber.Ctx) error {
 	}
 
 	var requestBody struct {
-		Name     string   `json:"name"`
-		Password string   `json:"password"`
-		Members  []string `json:"members"`
+		Name      string   `json:"name"`
+		Password  string   `json:"password"`
+		MemberIds []string `json:"member_ids"`
 	}
 
 	if err := c.BodyParser(&requestBody); err != nil {
@@ -229,8 +229,8 @@ func updateTeam(c *fiber.Ctx) error {
 
 		team.Password = string(passwordHash)
 	}
-	if requestBody.Members != nil {
-		team.SetMembers(requestBody.Members)
+	if requestBody.MemberIds != nil {
+		team.SetMembers(requestBody.MemberIds)
 	}
 
 	err = team.UpdateTeam()

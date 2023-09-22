@@ -25,6 +25,14 @@ type Team struct {
 
 // SetMembers sets the members of a team
 func (team *Team) SetMembers(membersIDs []string) {
+	// Find all members of team and set checked in to false and remove them
+	var existinMembers []Participant
+	database.DB.Model(&team).Association("Members").Find(&existinMembers)
+	for _, member := range existinMembers {
+		member.CheckedIn = false
+		member.TeamID = nil
+		member.UpdateParticipant()
+	}
 	// Set initially to empty array
 	team.Members = []Participant{}
 	var members []Participant
