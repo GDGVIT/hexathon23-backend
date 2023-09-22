@@ -7,6 +7,7 @@ import (
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/internal/auth"
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/internal/models"
 	"github.com/gofiber/fiber/v2"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // AuthHandler handles all the routes related to authentication
@@ -51,22 +52,22 @@ func register(c *fiber.Ctx) error {
 		})
 	}
 
-	// // Encrypt the password
-	// passwordHash, err := bcrypt.GenerateFromPassword([]byte(requestBody.Password), bcrypt.DefaultCost)
-	// if err != nil {
-	// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-	// 		"detail": "Error while encrypting password",
-	// 	})
-	// }
+	// Encrypt the password
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(requestBody.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": "Error while encrypting password",
+		})
+	}
 
-	// teamPassword := string(passwordHash)
+	teamPassword := string(passwordHash)
 
 	team := models.Team{
 		Name:     requestBody.Name,
-		Password: requestBody.Password,
+		Password: teamPassword,
 	}
 
-	err := team.CreateTeam()
+	err = team.CreateTeam()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"detail": "Error while creating team",
@@ -105,16 +106,16 @@ func login(c *fiber.Ctx) error {
 	}
 
 	// Check if the password is correct
-	// if err := bcrypt.CompareHashAndPassword([]byte(team.Password), []byte(requestBody.Password)); err != nil {
-	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-	// 		"detail": "Incorrect password",
-	// 	})
-	// }
-	if team.Password != requestBody.Password {
+	if err := bcrypt.CompareHashAndPassword([]byte(team.Password), []byte(requestBody.Password)); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"detail": "Incorrect password",
 		})
 	}
+	// if team.Password != requestBody.Password {
+	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+	// 		"detail": "Incorrect password",
+	// 	})
+	// }
 
 	token, err := auth.CreateJWTToken(team.Name, team.Role, auth.JWTSecret)
 	if err != nil {
