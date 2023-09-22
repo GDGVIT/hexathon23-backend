@@ -20,7 +20,7 @@ type Cart struct {
 
 // CreateCart creates a new cart
 func (cart *Cart) CreateCart() error {
-	return database.DB.Create(cart).Error
+	return database.DB.Session(&gorm.Session{FullSaveAssociations: true}).Create(cart).Error
 }
 
 // UpdateCart updates a cart

@@ -208,6 +208,7 @@ func confirmProblemStatement(c *fiber.Ctx) error {
 	}
 
 	team.StatementGenerations = 0
+	team.StatementConfirmed = true
 	err = team.UpdateTeam()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

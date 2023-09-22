@@ -18,6 +18,7 @@ type Team struct {
 	Amount               int              `gorm:"default:0"`
 	ProblemStatement     ProblemStatement `gorm:"foreignKey:ProblemStatementID;references:ID;constraint:OnDelete:CASCADE;"`
 	ProblemStatementID   *uuid.UUID
+	StatementConfirmed   bool   `gorm:"default:false"`
 	StatementGenerations int    `gorm:"default:3"`
 	ItemsPurchased       []Item `gorm:"many2many:team_items;"`
 	Submitted            bool   `gorm:"default:false"`
@@ -91,7 +92,8 @@ func (team *Team) DeleteTeam() error {
 // GetTeamByID returns a team by id
 func GetTeamByID(id string) (*Team, error) {
 	var team Team
-	err := database.DB.Where("id = ?", id).First(&team).Error
+	// Preload all clause associations
+	err := database.DB.Preload(clause.Associations).Where("id = ?", id).First(&team).Error
 	return &team, err
 }
 
