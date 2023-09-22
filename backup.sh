@@ -1,7 +1,13 @@
 #!/bin/bash
 
-# Set the current date for the backup filename
-BACKUP_FILENAME="backup_$(date +%Y%m%d%H%M%S).sql"
+# Check if a backup file name is provided as an argument
+if [ $# -ne 1 ]; then
+  echo "Usage: $0 <backup_name>"
+  exit 1
+fi
+
+# Set the current date and time along with input argument name as the backup file name
+BACKUP_FILENAME="$1-$(date '+%Y-%m-%d-%H-%M-%S').sql"
 
 # Check if the backups directory exists
 if [ ! -d "./backups" ]; then
