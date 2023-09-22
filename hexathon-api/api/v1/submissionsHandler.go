@@ -19,6 +19,7 @@ func submissionsHandler(r fiber.Router) {
 
 	group.Use(middleware.IsAdminMiddleware)
 	group.Delete("/:id", deleteSubmission) // <server-url>/api/v1/submissions/:id
+	group.Get("/", getSubmissions)
 }
 
 func submitSubmission(c *fiber.Ctx) error {
@@ -146,4 +147,16 @@ func deleteSubmission(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"detail": "Submission successfully deleted",
 	})
+}
+
+func getSubmissions(c *fiber.Ctx) error {
+	submissions, err := models.GetSubmissions()
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": "Internal Server Error",
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(schemas.SubmissionListSerializer(submissions))
+
 }

@@ -48,3 +48,11 @@ func GetSubmissionByID(id string) (*Submission, error) {
 	err := database.DB.Preload(clause.Associations).Where("id = ?", id).First(&submission).Error
 	return &submission, err
 }
+
+ // GetSubmissions returns all the submissions
+func GetSubmissions() ([]Submission, error) {
+	var submissions []Submission
+	// Preload all clause associations
+	err := database.DB.Preload(clause.Associations).Find(&submissions).Error
+	return submissions, err
+}
