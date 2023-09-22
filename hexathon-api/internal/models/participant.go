@@ -106,3 +106,17 @@ func SearchParticipantNotCheckedIn(query string) ([]Participant, error) {
 	err := database.DB.Where("name LIKE ? OR reg_no LIKE ? AND checked_in = ?", query+"%", query+"%", false).Find(&participant).Error
 	return participant, err
 }
+
+// GetParticipantsCheckedIn returns a list of all participants who have checked in
+func GetParticipantsCheckedIn() ([]Participant, error) {
+	var participants []Participant
+	err := database.DB.Where("checked_in = ?", true).Find(&participants).Error
+	return participants, err
+}
+
+// Searches for a participant by name or reg no who have checked in
+func SearchParticipantCheckedIn(name string) ([]Participant, error) {
+	var participant []Participant
+	err := database.DB.Where("name LIKE ? OR reg_no LIKE ? AND checked_in = ?", name+"%", name+"%", true).Find(&participant).Error
+	return participant, err
+}
