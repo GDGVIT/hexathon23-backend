@@ -10,6 +10,7 @@ func SubmissionSerializer(submission models.Submission) map[string]interface{} {
 		"problem_statement": ProblemStatementSerializer(submission.ProblemStatement),
 		"figma_url":         submission.FigmaURL,
 		"doc_url":           submission.DocURL,
+		"created_at":        submission.CreatedAt,
 	}
 }
 
