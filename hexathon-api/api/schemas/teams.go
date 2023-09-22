@@ -6,15 +6,16 @@ import "github.com/GDGVIT/hexathon23-backend/hexathon-api/internal/models"
 func TeamSerializer(team models.Team) map[string]interface{} {
 	cart, _ := team.GetCart()
 	return map[string]interface{}{
-		"id":          team.ID,
-		"name":        team.Name,
-		"logo":        team.Logo,
-		"members":     ParticipantListSerializer(team.Members),
-		"role":        team.Role,
-		"amount":      team.Amount,
-		"checked_out": cart.CheckedOut,
-		"items":       ItemListSerializer(team.ItemsPurchased),
-		"items_count": len(team.ItemsPurchased),
+		"id":                team.ID,
+		"name":              team.Name,
+		"logo":              team.Logo,
+		"members":           ParticipantListSerializer(team.Members),
+		"role":              team.Role,
+		"amount":            team.Amount,
+		"checked_out":       cart.CheckedOut,
+		"items":             ItemListSerializer(team.ItemsPurchased),
+		"items_count":       len(team.ItemsPurchased),
+		"problem_statement": ProblemStatementSerializer(team.ProblemStatement),
 	}
 }
 
