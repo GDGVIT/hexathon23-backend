@@ -14,6 +14,12 @@ if [ ! -f "$BACKUP_FILE" ]; then
   exit 1
 fi
 
+# Drop all the existing tables from the database
+docker exec -i hexathon-postgres psql -U postgres postgres << EOF
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+EOF
+
 # Restore the database from the backup file inside the PostgreSQL container
 docker exec -i hexathon-postgres psql -U postgres postgres < $BACKUP_FILE
 

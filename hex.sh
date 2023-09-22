@@ -79,6 +79,32 @@ if [ "$command" = "copy" ]; then
     exit 1
 fi
 
+# Backup database
+if [ "$command" = "backup" ]; then
+    echo "Backing up database"
+    shift # Discard the first argument
+    # Make sure argument is provided
+    if [ -z "$1" ]; then
+        echo "Usage: hex backup <backup_name>"
+        exit 1
+    fi
+    ./backup.sh "$1"
+    exit 1
+fi
+
+# Restore database
+if [ "$command" = "restore" ]; then
+    echo "Restoring database"
+    shift # Discard the first argument
+    # Make sure argument is provided
+    if [ -z "$1" ]; then
+        echo "Usage: hex restore <backup_file>"
+        exit 1
+    fi
+    ./restore.sh "$1"
+    exit 1
+fi
+
 # Management commands
 if [ "$command" = "cli" ]; then
     shift # Discard the first argument
