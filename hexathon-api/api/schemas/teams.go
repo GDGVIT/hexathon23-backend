@@ -30,7 +30,7 @@ func TeamListSerializer(teams []models.Team) []map[string]interface{} {
 	var result []map[string]interface{}
 
 	for _, team := range teams {
-		result = append(result, TeamBlockSerializer(team))
+		result = append(result, TeamSerializer(team))
 	}
 
 	return result
