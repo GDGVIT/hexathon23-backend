@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"fmt"
+
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/api/middleware"
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/api/schemas"
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/internal/models"
@@ -18,13 +20,15 @@ func teamsHandler(r fiber.Router) {
 	group.Get("/me", getMyTeam) // <server-url>/api/v1/teams/me
 
 	group.Use(middleware.IsAdminMiddleware)
-	group.Get("/", getTeams)                                        // <server-url>/api/v1/teams/
-	group.Post("/:name/regeneratePassword", regenerateTeamPassword) // <server-url>/api/v1/teams/:name/regeneratePassword
-	group.Get("/:name", getTeam)                                    // <server-url>/api/v1/teams/:id
-	group.Post("/admin", createAdminTeam)                           // <server-url>/api/v1/teams/admin
-	group.Post("/", createTeam)                                     // <server-url>/api/v1/teams/
-	group.Put("/:name", updateTeam)                                 // <server-url>/api/v1/teams/:id
-	group.Delete("/:name", deleteTeam)                              // <server-url>/api/v1/teams/:id
+	group.Get("/", getTeams)                                           // <server-url>/api/v1/teams/
+	group.Post("/:name/regeneratePassword", regenerateTeamPassword)    // <server-url>/api/v1/teams/:name/regeneratePassword
+	group.Get("/:name", getTeam)                                       // <server-url>/api/v1/teams/:id
+	group.Post("/admin", createAdminTeam)                              // <server-url>/api/v1/teams/admin
+	group.Post("/", createTeam)                                        // <server-url>/api/v1/teams/
+	group.Put("/:name", updateTeam)                                    // <server-url>/api/v1/teams/:id
+	group.Delete("/:name", deleteTeam)                                 // <server-url>/api/v1/teams/:id
+	group.Post("/checkout", checkoutTeams)                             // <server-url>/api/v1/teams/checkout
+	group.Post("/confirmProblemStatement", confirmAllProblemStatement) // <server-url>/api/v1/teams/confirmProblemStatement
 }
 
 // Create an admin team
@@ -155,12 +159,43 @@ func createTeam(c *fiber.Ctx) error {
 // Get a list of all teams
 func getTeams(c *fiber.Ctx) error {
 	teams, err := models.GetTeams()
+
+	var resTeams []models.Team
+	if c.Query("checked_out") == "true" {
+
+		for teamIndex, team := range teams {
+			cart, err := team.GetCart()
+			if err != nil {
+				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+					"detail": fmt.Sprintf("Error getting cart for team %s: %s", team.Name, err.Error()),
+				})
+			}
+			if cart.CheckedOut {
+				resTeams = append(resTeams, teams[teamIndex])
+			}
+		}
+	} else if c.Query("checked_out") == "false" {
+		for teamIndex, team := range teams {
+			cart, err := team.GetCart()
+			if err != nil {
+				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+					"detail": fmt.Sprintf("Error getting cart for team %s: %s", team.Name, err.Error()),
+				})
+			}
+			if !cart.CheckedOut {
+				resTeams = append(resTeams, teams[teamIndex])
+			}
+		}
+	} else {
+		resTeams = teams
+	}
+
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"detail": "Internal Server Error",
 		})
 	}
-	return c.Status(fiber.StatusOK).JSON(schemas.TeamListSerializer(teams))
+	return c.Status(fiber.StatusOK).JSON(schemas.TeamListSerializer(resTeams))
 }
 
 // Get a team by id
@@ -307,4 +342,56 @@ func regenerateTeamPassword(c *fiber.Ctx) error {
 		})
 	}
 	return c.Status(fiber.StatusAccepted).JSON(schemas.TeamCredentialsSerializer(*team, pwd))
+}
+
+// Checkout all teams who have not checked out
+func checkoutTeams(c *fiber.Ctx) error {
+	teams, err := models.GetTeams()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": "Internal Server Error",
+		})
+	}
+
+	statusCheckout := make(map[string]string)
+
+	for _, team := range teams {
+		cart, err := team.GetCart()
+		if err != nil {
+			statusCheckout[team.Name] = "Error getting cart"
+		}
+		if !cart.CheckedOut {
+			err = cart.CheckoutCart()
+			if err != nil {
+				statusCheckout[team.Name] = "Error checking out cart"
+			} else {
+				statusCheckout[team.Name] = "Checked out successfully"
+			}
+		}
+	}
+
+	return c.Status(fiber.StatusOK).JSON(statusCheckout)
+}
+
+// Confirm the problem statement for all teams
+func confirmAllProblemStatement(c *fiber.Ctx) error {
+	teams, err := models.GetTeams()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting teams: %s", err.Error())})
+	}
+
+	statusCheckout := make(map[string]string)
+
+	for _, team := range teams {
+		team.StatementConfirmed = true
+		team.StatementGenerations = 0
+		err = team.UpdateTeam()
+		if err != nil {
+			statusCheckout[team.Name] = "Error updating team"
+		} else {
+			statusCheckout[team.Name] = "Confirmed problem statement"
+		}
+	}
+	return c.Status(fiber.StatusOK).JSON(statusCheckout)
 }
