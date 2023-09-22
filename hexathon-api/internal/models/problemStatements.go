@@ -70,6 +70,9 @@ func GenerateProblemStatementForTeam(team *Team) (*ProblemStatement, error) {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	problemStatement := problemStatements[r.Intn(len(problemStatements))]
 	team.StatementGenerations--
+	if team.StatementGenerations == 0 {
+		team.StatementConfirmed = true
+	}
 	team.ProblemStatementID = &problemStatement.ID
 	team.ProblemStatement = problemStatement
 	err = team.UpdateTeam()
