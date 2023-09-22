@@ -16,8 +16,9 @@ func participantsHandler(r fiber.Router) {
 	// Routes
 	group.Use(middleware.JWTAuthMiddleware)
 	group.Use(middleware.IsAdminMiddleware)
-	group.Get("/", getParticipants)                   // <server-url>/api/v1/participants/
+	group.Get("/", getParticipants)                   // <server-url>/api/v1/participants/ (not checked in)
 	group.Get("/checkedin", getCheckedInParticipants) // <server-url>/api/v1/participants/checkedin")
+	group.Get("/all", getAllParticipants)             // <server-url>/api/v1/participants/all (all)
 	group.Get("/:id", getParticipant)                 // <server-url>/api/v1/participants/:id
 	group.Post("/", createParticipant)                // <server-url>/api/v1/participants/
 	group.Put("/:id", updateParticipant)              // <server-url>/api/v1/participants/:id
@@ -49,6 +50,17 @@ func getCheckedInParticipants(c *fiber.Ctx) error {
 	} else {
 		participants, err = models.GetParticipantsCheckedIn()
 	}
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting participants: %s", err.Error())})
+	}
+	return c.Status(fiber.StatusOK).JSON(schemas.ParticipantListSerializer(participants))
+}
+
+// Get all participants
+func getAllParticipants(c *fiber.Ctx) error {
+	var participants []models.Participant
+	var err error
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"detail": fmt.Sprintf("Error getting participants: %s", err.Error())})
