@@ -11,8 +11,8 @@ import (
 
 type Submission struct {
 	ID                 uuid.UUID `gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
-	CreatedAt          time.Time
-	Team               Team `gorm:"foreignKey:TeamID"`
+	CreatedAt          time.Time `gorm:"autoCreateTime"`
+	Team               Team      `gorm:"foreignKey:TeamID"`
 	TeamID             uuid.UUID
 	ProblemStatement   ProblemStatement `gorm:"foreignKey:ProblemStatementID;references:ID"`
 	ProblemStatementID uuid.UUID
@@ -49,7 +49,7 @@ func GetSubmissionByID(id string) (*Submission, error) {
 	return &submission, err
 }
 
- // GetSubmissions returns all the submissions
+// GetSubmissions returns all the submissions
 func GetSubmissions() ([]Submission, error) {
 	var submissions []Submission
 	// Preload all clause associations
