@@ -161,7 +161,7 @@ func getProblemStatementForTeam(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).JSON(schemas.ProblemStatementOneLinerSerializer(team.ProblemStatement))
 	}
 
-	return c.Status(fiber.StatusOK).JSON(schemas.ProblemStatementGenerationSerializer(team.ProblemStatement, team.StatementGenerations))
+	return c.Status(fiber.StatusOK).JSON(schemas.ProblemStatementGenerationSerializer(team.ProblemStatement, team.StatementGenerations, team.StatementConfirmed))
 }
 
 // Generate a problemStatement for a team
@@ -190,7 +190,7 @@ func generateProblemStatementForTeam(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(schemas.ProblemStatementGenerationSerializer(*problemStatement, team.StatementGenerations))
+	return c.Status(fiber.StatusOK).JSON(schemas.ProblemStatementGenerationSerializer(*problemStatement, team.StatementGenerations, team.StatementConfirmed))
 }
 
 // Confirm the problem statement selected
@@ -207,6 +207,7 @@ func confirmProblemStatement(c *fiber.Ctx) error {
 		})
 	}
 
+	team.ProblemStatementID = &team.ProblemStatement.ID
 	team.StatementGenerations = 0
 	team.StatementConfirmed = true
 	err = team.UpdateTeam()
@@ -215,5 +216,6 @@ func confirmProblemStatement(c *fiber.Ctx) error {
 			"detail": fmt.Sprintf("Error updating team: %s", err.Error()),
 		})
 	}
-	return c.Status(fiber.StatusAccepted).JSON(schemas.TeamSerializer(*team))
+
+	return c.Status(fiber.StatusOK).JSON(schemas.ProblemStatementSerializer(team.ProblemStatement))
 }

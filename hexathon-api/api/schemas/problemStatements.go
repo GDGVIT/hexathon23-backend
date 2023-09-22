@@ -26,13 +26,14 @@ func ProblemStatementListSerializer(problemStatements []models.ProblemStatement)
 }
 
 // ProblemStatementGenerationSerializer for displaying problem statement generation data
-func ProblemStatementGenerationSerializer(problemStatement models.ProblemStatement, generations int) map[string]interface{} {
+func ProblemStatementGenerationSerializer(problemStatement models.ProblemStatement, generations int, statementConfirmed bool) map[string]interface{} {
 	return map[string]interface{}{
-		"id":               problemStatement.ID,
-		"name":             problemStatement.Name,
-		"one_liner":        problemStatement.OneLiner,
-		"description":      problemStatement.Description,
-		"generations_left": generations,
+		"id":                  problemStatement.ID,
+		"name":                problemStatement.Name,
+		"one_liner":           problemStatement.OneLiner,
+		"description":         problemStatement.Description,
+		"generations_left":    generations,
+		"statement_confirmed": statementConfirmed,
 	}
 }
 
