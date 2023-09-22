@@ -17,6 +17,7 @@ func problemStatementHandler(r fiber.Router) {
 	group.Post("/team", generateProblemStatementForTeam) // <server-url>/api/v1/problemStatements/team
 	group.Post("/confirm", confirmProblemStatement)      // <server-url>/api/v1/problemStatements/confirm
 
+	group.Use(middleware.IsAdminMiddleware)
 	group.Get("/", getProblemStatements)         // <server-url>/api/v1/problemStatements/
 	group.Get("/:id", getProblemStatement)       // <server-url>/api/v1/problemStatements/:id
 	group.Post("/", createProblemStatement)      // <server-url>/api/v1/problemStatements/
