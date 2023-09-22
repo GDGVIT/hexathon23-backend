@@ -6,6 +6,7 @@ import (
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/internal/models"
 	"github.com/sethvargo/go-password/password"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // teamsCommands is the list of commands related to teams
@@ -57,20 +58,20 @@ func createAdminTeam(c *cli.Context) error {
 	fmt.Scanln(&pwd)
 
 	// Encrypt the password
-	// passwordHash, err := bcrypt.GenerateFromPassword([]byte(pwd), bcrypt.DefaultCost)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return nil
-	// }
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(pwd), bcrypt.DefaultCost)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
 
-	teamPassword := pwd
+	teamPassword := string(passwordHash)
 
 	team := models.Team{
 		Name:     teamName,
 		Password: teamPassword,
 		Role:     "admin",
 	}
-	err := team.CreateTeam()
+	err = team.CreateTeam()
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -101,14 +102,13 @@ func createTeam(c *cli.Context) error {
 	}
 
 	// // Encrypt the password
-	// passwordHash, err := bcrypt.GenerateFromPassword([]byte(pwd), bcrypt.DefaultCost)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return nil
-	// }
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(pwd), bcrypt.DefaultCost)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
 
-	// teamPassword = string(passwordHash)
-	teamPassword = pwd
+	teamPassword = string(passwordHash)
 
 	team := models.Team{
 		Name:     teamName,
@@ -179,5 +179,45 @@ func deleteTeam(c *cli.Context) error {
 	}
 
 	fmt.Println("Team deleted successfully!")
+	return nil
+}
+
+// ResetPassword resets the password of a team
+func resetPassword(c *cli.Context) error {
+	var teamName string
+
+	fmt.Println("Enter team name: ")
+	fmt.Scanln(&teamName)
+
+	team, err := models.GetTeamByName(teamName)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	// Generate a random password with 12 characters of length, 3 digits and 3 symbols
+	pwd, err := password.Generate(12, 3, 3, false, false)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	// Encrypt the password
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(pwd), bcrypt.DefaultCost)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	team.Password = string(passwordHash)
+	err = team.UpdateTeam()
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	fmt.Println("Team password reset successfully!")
+	fmt.Println("Team name: ", teamName)
+	fmt.Println("Team password: ", pwd)
 	return nil
 }

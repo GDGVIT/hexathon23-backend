@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"fmt"
+
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/api/middleware"
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/api/schemas"
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/internal/models"
@@ -55,7 +57,7 @@ func createItem(c *fiber.Ctx) error {
 	categoryID, err := uuid.Parse(requestBody.CategoryID)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": "Invalid category id",
+			"detail": fmt.Sprintf("Invalid category id: %s", err.Error()),
 		})
 	}
 
@@ -68,12 +70,16 @@ func createItem(c *fiber.Ctx) error {
 	}
 
 	if err := item.CreateItem(); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error creating item: %s", err.Error()),
+		})
 	}
 
 	item, err = models.GetItemByID(item.ID.String())
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting item: %s", err.Error()),
+		})
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(schemas.ItemSerializer(*item))
@@ -87,19 +93,24 @@ func getItems(c *fiber.Ctx) error {
 	if c.Query("category") != "" {
 		items, err = models.GetItemsByCategoryID(c.Query("category"))
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"detail": fmt.Sprintf("Error getting items: %s", err.Error()),
+			})
 		}
 	} else {
 		items, err = models.GetItems()
 	}
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting items: %s", err.Error()),
+		})
 	}
 
 	team := c.Locals("team").(models.Team)
 	cart, err := team.GetCart()
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting cart: %s", err.Error())})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(schemas.ItemCartListSerializer(items, *cart))
@@ -109,7 +120,8 @@ func getItems(c *fiber.Ctx) error {
 func getItem(c *fiber.Ctx) error {
 	item, err := models.GetItemByID(c.Params("id"))
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting item: %s", err.Error())})
 	}
 
 	if item == nil {
@@ -151,7 +163,8 @@ func updateItem(c *fiber.Ctx) error {
 
 	item, err := models.GetItemByID(c.Params("id"))
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting item: %s", err.Error())})
 	}
 
 	if item == nil {
@@ -175,12 +188,14 @@ func updateItem(c *fiber.Ctx) error {
 	item.CategoryID = categoryID
 
 	if err := item.UpdateItem(); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error updating item: %s", err.Error())})
 	}
 
 	item, err = models.GetItemByID(item.ID.String())
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting item: %s", err.Error())})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(schemas.ItemSerializer(*item))
@@ -190,7 +205,8 @@ func updateItem(c *fiber.Ctx) error {
 func deleteItem(c *fiber.Ctx) error {
 	item, err := models.GetItemByID(c.Params("id"))
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting item: %s", err.Error())})
 	}
 
 	if item == nil {
@@ -200,7 +216,8 @@ func deleteItem(c *fiber.Ctx) error {
 	}
 
 	if err := item.DeleteItem(); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error deleting item: %s", err.Error())})
 	}
 
 	return c.SendStatus(fiber.StatusNoContent)
