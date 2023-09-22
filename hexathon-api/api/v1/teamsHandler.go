@@ -184,9 +184,11 @@ func updateTeam(c *fiber.Ctx) error {
 	}
 
 	var requestBody struct {
-		Name      string   `json:"name"`
-		Password  string   `json:"password"`
-		MemberIds []string `json:"member_ids"`
+		Name                        string   `json:"name"`
+		Password                    string   `json:"password"`
+		MemberIds                   []string `json:"member_ids"`
+		ProblemStatementGenerations int      `json:"ps_generations"`
+		StatementConfirmed          bool     `json:"ps_confirmed"`
 	}
 
 	if err := c.BodyParser(&requestBody); err != nil {
@@ -232,6 +234,12 @@ func updateTeam(c *fiber.Ctx) error {
 	if requestBody.MemberIds != nil {
 		team.SetMembers(requestBody.MemberIds)
 	}
+
+	if requestBody.ProblemStatementGenerations != 0 {
+		team.StatementGenerations = requestBody.ProblemStatementGenerations
+	}
+
+	team.StatementConfirmed = requestBody.StatementConfirmed
 
 	err = team.UpdateTeam()
 	if err != nil {
