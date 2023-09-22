@@ -28,7 +28,7 @@ func CartItemsSerializer(items []models.Item) map[string][]map[string]interface{
 	// Cart items sorted by category
 	cartItems := make(map[string][]map[string]interface{})
 	for _, item := range items {
-		cartItems[item.CategoryID.String()] = append(cartItems[item.CategoryID.String()], CartItemSerializer(item))
+		cartItems[item.CategoryID.String()] = append(cartItems[item.CategoryID.String()], ItemSerializer(item))
 	}
 	return cartItems
 }
