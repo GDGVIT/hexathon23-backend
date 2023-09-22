@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"crypto/subtle"
 	"fmt"
 
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/api/middleware"
@@ -37,11 +36,19 @@ func submitSubmission(c *fiber.Ctx) error {
 		})
 	}
 
+	submission, err := models.GetSubmissionByTeamID(team.ID.String())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting submission: %s", err.Error())})
+	}
+
 	if team.Submitted {
 		// TODO: Redirect to updateSubmission with appropriate ID
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": "Team has already submitted",
-		})
+		// return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		// 	"detail": "Team has already submitted",
+		// })
+
+		return c.Redirect("/" + submission.ID.String(), fiber.StatusPermanentRedirect)
 	}
 
 	var requestBody struct {
@@ -59,7 +66,7 @@ func submitSubmission(c *fiber.Ctx) error {
 		})
 	}
 
-	submission := &models.Submission{
+	submission = &models.Submission{
 		FigmaURL:         requestBody.FigmaURL,
 		DocURL:           requestBody.DocURL,
 		Team:             *team,
@@ -149,6 +156,17 @@ func deleteSubmission(c *fiber.Ctx) error {
 	}
 
 	team, err := models.GetTeamByID(submission.TeamID.String())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting team: %s", err.Error())})
+	}
+
+	if team == nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"detail": "Team not found",
+		})
+	}
+	
 	team.Submitted = false
 	err = team.UpdateTeam()
 	if err != nil {
