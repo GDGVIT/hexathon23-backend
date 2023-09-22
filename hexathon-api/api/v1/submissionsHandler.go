@@ -16,7 +16,7 @@ func submissionsHandler(r fiber.Router) {
 	// Routes
 	group.Use(middleware.JWTAuthMiddleware)
 	group.Post("/submit", submitSubmission) // <server-url>/api/v1/submissions/submit
-	group.Put("/:id", updateSubmission)	// <server-url>/api/v1/submissions/:id
+	group.Put("/submit", updateSubmission)	// <server-url>/api/v1/submissions/submit
 
 	group.Use(middleware.IsAdminMiddleware)
 	group.Delete("/:id", deleteSubmission) // <server-url>/api/v1/submissions/:id
@@ -36,19 +36,10 @@ func submitSubmission(c *fiber.Ctx) error {
 		})
 	}
 
-	submission, err := models.GetSubmissionByTeamID(team.ID.String())
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"detail": fmt.Sprintf("Error getting submission: %s", err.Error())})
-	}
-
 	if team.Submitted {
-		// TODO: Redirect to updateSubmission with appropriate ID
-		// return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-		// 	"detail": "Team has already submitted",
-		// })
-
-		return c.Redirect("/" + submission.ID.String(), fiber.StatusPermanentRedirect)
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"detail": "Team has already submitted",
+		})
 	}
 
 	var requestBody struct {
@@ -66,7 +57,7 @@ func submitSubmission(c *fiber.Ctx) error {
 		})
 	}
 
-	submission = &models.Submission{
+	submission := &models.Submission{
 		FigmaURL:         requestBody.FigmaURL,
 		DocURL:           requestBody.DocURL,
 		Team:             *team,
@@ -93,6 +84,19 @@ func submitSubmission(c *fiber.Ctx) error {
 
 // Update Submission based on submission ID
 func updateSubmission(c *fiber.Ctx) error {
+	team, err := models.GetTeamByName(c.Locals("team").(models.Team).Name)
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting team: %s", err.Error())})
+	}
+
+	if team == nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"detail": "Team not found",
+		})
+	}
+
 	var requestBody struct {
 		FigmaURL string `json:"figmaURL"`
 		DocURL   string `json:"docURL"`
@@ -108,7 +112,7 @@ func updateSubmission(c *fiber.Ctx) error {
 		})
 	}
 
-	submission, err := models.GetSubmissionByID(c.Params("id"))
+	submission, err := models.GetSubmissionByTeamID(team.ID.String())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"detail": fmt.Sprintf("Error getting item: %s", err.Error()),
@@ -166,7 +170,7 @@ func deleteSubmission(c *fiber.Ctx) error {
 			"detail": "Team not found",
 		})
 	}
-	
+
 	team.Submitted = false
 	err = team.UpdateTeam()
 	if err != nil {

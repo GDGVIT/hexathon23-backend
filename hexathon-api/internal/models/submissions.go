@@ -27,7 +27,7 @@ func (submission *Submission) CreateSubmission() error {
 
 // Updates a submission
 func (submission *Submission) UpdateSubmission() error {
-	return database.DB.Save(submission).Error
+	return database.DB.Session(&gorm.Session{FullSaveAssociations: true}).Save(submission).Error
 }
 
 // Deletes a submission
@@ -38,7 +38,7 @@ func (submission *Submission) DeleteSubmission() error {
 // Retrieves submissions by Team ID
 func GetSubmissionByTeamID(id string) (*Submission, error) {
 	var submission Submission
-	err := database.DB.Preload(clause.Associations).Where("Teamid = ?", id).First(&submission).Error
+	err := database.DB.Preload(clause.Associations).Where("team_id = ?", id).First(&submission).Error
 	return &submission, err
 }
 
