@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"fmt"
+
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/api/middleware"
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/api/schemas"
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/internal/models"
@@ -29,7 +31,8 @@ func problemStatementHandler(r fiber.Router) {
 func getProblemStatements(c *fiber.Ctx) error {
 	problemStatements, err := models.GetProblemStatements()
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting problemStatements: %s", err.Error())})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(schemas.ProblemStatementListSerializer(problemStatements))
@@ -39,7 +42,8 @@ func getProblemStatements(c *fiber.Ctx) error {
 func getProblemStatement(c *fiber.Ctx) error {
 	problemStatement, err := models.GetProblemStatement(c.Params("id"))
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting problemStatement: %s", err.Error())})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(schemas.ProblemStatementSerializer(problemStatement))
@@ -71,7 +75,8 @@ func createProblemStatement(c *fiber.Ctx) error {
 	}
 
 	if err := problemStatement.CreateProblemStatement(); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error creating problemStatement: %s", err.Error())})
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(schemas.ProblemStatementSerializer(problemStatement))
@@ -81,7 +86,8 @@ func createProblemStatement(c *fiber.Ctx) error {
 func updateProblemStatement(c *fiber.Ctx) error {
 	problemStatement, err := models.GetProblemStatement(c.Params("id"))
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting problemStatement: %s", err.Error())})
 	}
 
 	var requestBody struct {
@@ -113,7 +119,8 @@ func updateProblemStatement(c *fiber.Ctx) error {
 	}
 
 	if err := problemStatement.UpdateProblemStatement(); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error updating problemStatement: %s", err.Error())})
 	}
 
 	return c.Status(fiber.StatusAccepted).JSON(schemas.ProblemStatementSerializer(problemStatement))
@@ -123,11 +130,13 @@ func updateProblemStatement(c *fiber.Ctx) error {
 func deleteProblemStatement(c *fiber.Ctx) error {
 	problemStatement, err := models.GetProblemStatement(c.Params("id"))
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting problemStatement: %s", err.Error())})
 	}
 
 	if err := problemStatement.DeleteProblemStatement(); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error deleting problemStatement: %s", err.Error())})
 	}
 
 	return c.SendStatus(fiber.StatusNoContent)
@@ -137,7 +146,8 @@ func deleteProblemStatement(c *fiber.Ctx) error {
 func getProblemStatementForTeam(c *fiber.Ctx) error {
 	team, err := models.GetTeamByName(c.Locals("team").(models.Team).Name)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting team: %s", err.Error())})
 	}
 
 	if team == nil {
@@ -159,7 +169,8 @@ func generateProblemStatementForTeam(c *fiber.Ctx) error {
 	team, err := models.GetTeamByName(c.Locals("team").(models.Team).Name)
 
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting team: %s", err.Error())})
 	}
 
 	if team == nil {
@@ -170,7 +181,8 @@ func generateProblemStatementForTeam(c *fiber.Ctx) error {
 
 	problemStatement, err := models.GenerateProblemStatementForTeam(team)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error generating problemStatement: %s", err.Error())})
 	}
 	if problemStatement == nil {
 		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
@@ -185,7 +197,8 @@ func generateProblemStatementForTeam(c *fiber.Ctx) error {
 func confirmProblemStatement(c *fiber.Ctx) error {
 	team, err := models.GetTeamByName(c.Locals("team").(models.Team).Name)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting team: %s", err.Error())})
 	}
 
 	if team == nil {
@@ -198,7 +211,7 @@ func confirmProblemStatement(c *fiber.Ctx) error {
 	err = team.UpdateTeam()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"detail": "Internal Server Error",
+			"detail": fmt.Sprintf("Error updating team: %s", err.Error()),
 		})
 	}
 	return c.Status(fiber.StatusAccepted).JSON(schemas.TeamSerializer(*team))

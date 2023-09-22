@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"fmt"
+
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/api/middleware"
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/api/schemas"
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/internal/models"
@@ -27,7 +29,8 @@ func getParticipants(c *fiber.Ctx) error {
 		participants, err = models.GetParticipantsNotCheckedIn()
 	}
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting participants: %s", err.Error())})
 	}
 	return c.Status(fiber.StatusOK).JSON(schemas.ParticipantListSerializer(participants))
 }

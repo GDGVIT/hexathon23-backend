@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"fmt"
+
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/api/middleware"
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/api/schemas"
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/internal/models"
@@ -26,7 +28,9 @@ func categoriesHandler(r fiber.Router) {
 func getCategories(c *fiber.Ctx) error {
 	categories, err := models.GetCategories()
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting categories: %s", err.Error()),
+		})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(schemas.CategoryListSerializer(categories))
@@ -60,7 +64,9 @@ func createCategory(c *fiber.Ctx) error {
 	}
 
 	if err := category.CreateCategory(); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error creating category: %s", err.Error()),
+		})
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(schemas.CategorySerializer(category))
@@ -70,7 +76,9 @@ func createCategory(c *fiber.Ctx) error {
 func getCategory(c *fiber.Ctx) error {
 	category, err := models.GetCategoryByID(c.Params("id"))
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting category: %s", err.Error()),
+		})
 	}
 
 	if category == nil {
@@ -95,7 +103,9 @@ func updateCategory(c *fiber.Ctx) error {
 
 	category, err := models.GetCategoryByID(c.Params("id"))
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting category: %s", err.Error()),
+		})
 	}
 
 	if category == nil {
@@ -114,7 +124,9 @@ func updateCategory(c *fiber.Ctx) error {
 	category.MaxItems = requestBody.MaxItems
 
 	if err := category.UpdateCategory(); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error updating category: %s", err.Error()),
+		})
 	}
 
 	return c.Status(fiber.StatusAccepted).JSON(schemas.CategorySerializer(*category))
@@ -124,7 +136,8 @@ func updateCategory(c *fiber.Ctx) error {
 func deleteCategory(c *fiber.Ctx) error {
 	category, err := models.GetCategoryByID(c.Params("id"))
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting category: %s", err.Error())})
 	}
 
 	if category == nil {
@@ -132,7 +145,9 @@ func deleteCategory(c *fiber.Ctx) error {
 	}
 
 	if err := category.DeleteCategory(); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error deleting category: %s", err.Error()),
+		})
 	}
 
 	return c.SendStatus(fiber.StatusNoContent)

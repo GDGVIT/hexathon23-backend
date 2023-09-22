@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"fmt"
+
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/api/middleware"
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/api/schemas"
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/internal/models"
@@ -24,7 +26,9 @@ func getMyCart(c *fiber.Ctx) error {
 	team := c.Locals("team").(models.Team)
 	cart, err := team.GetCart()
 	if err != nil {
-		return err
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting cart: %s", err.Error()),
+		})
 	}
 	return c.Status(fiber.StatusOK).JSON(schemas.CartSerializer(*cart))
 }
@@ -35,26 +39,28 @@ func addToCart(c *fiber.Ctx) error {
 	item, err := models.GetItemByID(itemID)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": "Invalid item ID",
+			"detail": fmt.Sprintf("Error getting item: %s", err.Error()),
 		})
 	}
 
 	team := c.Locals("team").(models.Team)
 	cart, err := team.GetCart()
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting cart: %s", err.Error()),
+		})
+	}
+
 	if cart.CheckedOut {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"detail": "Cart already checked out",
 		})
 	}
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": err.Error(),
-		})
-	}
+
 	err = cart.AddToCart(*item)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": err.Error(),
+			"detail": fmt.Sprintf("Error adding item to cart: %s", err.Error()),
 		})
 	}
 	return c.Status(fiber.StatusOK).JSON(schemas.CartSerializer(*cart))
@@ -66,7 +72,7 @@ func deleteFromCart(c *fiber.Ctx) error {
 	item, err := models.GetItemByID(itemID)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": "Invalid item ID",
+			"detail": fmt.Sprintf("Error getting item: %s", err.Error()),
 		})
 	}
 
@@ -79,13 +85,13 @@ func deleteFromCart(c *fiber.Ctx) error {
 	}
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": err.Error(),
+			"detail": fmt.Sprintf("Error getting cart: %s", err.Error()),
 		})
 	}
 	err = cart.DeleteFromCart(*item)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": err.Error(),
+			"detail": fmt.Sprintf("Error deleting item from cart: %s", err.Error()),
 		})
 	}
 	return c.Status(fiber.StatusOK).JSON(schemas.CartSerializer(*cart))
@@ -97,7 +103,7 @@ func checkoutCart(c *fiber.Ctx) error {
 	cart, err := team.GetCart()
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": err.Error(),
+			"detail": fmt.Sprintf("Error getting cart: %s", err.Error()),
 		})
 	}
 	if cart.CheckedOut {
@@ -108,13 +114,13 @@ func checkoutCart(c *fiber.Ctx) error {
 	err = cart.CheckoutCart()
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": err.Error(),
+			"detail": fmt.Sprintf("Error checking out cart: %s", err.Error()),
 		})
 	}
 	retTeam, err := models.GetTeamByName(team.Name)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": err.Error(),
+			"detail": fmt.Sprintf("Error getting team: %s", err.Error()),
 		})
 	}
 

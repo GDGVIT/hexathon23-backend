@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"fmt"
+
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/api/middleware"
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/api/schemas"
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/internal/models"
@@ -20,7 +22,8 @@ func submitLinks(c *fiber.Ctx) error {
 	team, err := models.GetTeamByName(c.Locals("team").(models.Team).Name)
 
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting team: %s", err.Error())})
 	}
 
 	if team == nil {
@@ -58,7 +61,8 @@ func submitLinks(c *fiber.Ctx) error {
 	}
 
 	if err := submission.CreateSubmission(); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(schemas.InternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error creating submission: %s", err.Error())})
 	}
 
 	team.Submitted = true
