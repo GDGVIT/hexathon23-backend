@@ -16,6 +16,8 @@ func submissionsHandler(r fiber.Router) {
 	// Routes
 	group.Use(middleware.JWTAuthMiddleware)
 	group.Post("/submit", submitLinks) // <server-url>/api/v1/submissions/submit
+	group.Use(middleware.IsAdminMiddleware)
+	group.Get("/", getSubmissions)
 }
 
 func submitLinks(c *fiber.Ctx) error {
@@ -76,4 +78,16 @@ func submitLinks(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"detail": "Submission successful",
 	})
+}
+
+func getSubmissions(c *fiber.Ctx) error {
+	submissions, err := models.GetSubmissions()
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": "Internal Server Error",
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(schemas.SubmissionListSerializer(submissions))
+
 }
