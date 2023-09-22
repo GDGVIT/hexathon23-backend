@@ -15,12 +15,14 @@ func submissionsHandler(r fiber.Router) {
 
 	// Routes
 	group.Use(middleware.JWTAuthMiddleware)
-	group.Post("/submit", submitLinks) // <server-url>/api/v1/submissions/submit
+	group.Post("/submit", submitSubmission) // <server-url>/api/v1/submissions/submit
+
 	group.Use(middleware.IsAdminMiddleware)
+	group.Delete("/:id", deleteSubmission) // <server-url>/api/v1/submissions/:id
 	group.Get("/", getSubmissions)
 }
 
-func submitLinks(c *fiber.Ctx) error {
+func submitSubmission(c *fiber.Ctx) error {
 	team, err := models.GetTeamByName(c.Locals("team").(models.Team).Name)
 
 	if err != nil {
@@ -31,12 +33,6 @@ func submitLinks(c *fiber.Ctx) error {
 	if team == nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"detail": "Team not found",
-		})
-	}
-
-	if team.Submitted {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"detail": "Team has already submitted",
 		})
 	}
 
@@ -55,19 +51,92 @@ func submitLinks(c *fiber.Ctx) error {
 		})
 	}
 
-	submission := &models.Submission{
-		FigmaURL:         requestBody.FigmaURL,
-		DocURL:           requestBody.DocURL,
-		Team:             *team,
-		ProblemStatement: team.ProblemStatement,
-	}
+	if team.Submitted {
+		submission, err := models.GetSubmissionByTeamID(team.ID.String())
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"detail": fmt.Sprintf("Error getting item: %s", err.Error()),
+			})
+		}
 
-	if err := submission.CreateSubmission(); err != nil {
+		if submission == nil {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"detail": "Submission not found",
+			})
+		}
+
+		submission.FigmaURL = requestBody.FigmaURL
+		submission.DocURL = requestBody.DocURL
+
+		if err := submission.UpdateSubmission(); err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"detail": fmt.Sprintf("Error updating item: %s", err.Error())})
+		}
+
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"detail": "Update successful",
+		})
+	} else {
+		submission := &models.Submission{
+			FigmaURL:         requestBody.FigmaURL,
+			DocURL:           requestBody.DocURL,
+			Team:             *team,
+			ProblemStatement: team.ProblemStatement,
+		}
+	
+		if err := submission.CreateSubmission(); err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"detail": fmt.Sprintf("Error creating submission: %s", err.Error())})
+		}
+	
+		team.Submitted = true
+		err = team.UpdateTeam()
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"detail": "Internal Server Error",
+			})
+		}
+	
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"detail": "Submission successful",
+		})
+	}
+}
+
+// Deletes a submission based on submission ID
+func deleteSubmission(c *fiber.Ctx) error {
+	submission, err := models.GetSubmissionByID(c.Params("id"))
+	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"detail": fmt.Sprintf("Error creating submission: %s", err.Error())})
+			"detail": fmt.Sprintf("Error getting submission: %s", err.Error()),
+		})
 	}
 
-	team.Submitted = true
+	if submission == nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"detail": "Submission not found",
+		})
+	}
+
+	if err := submission.DeleteSubmission(); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error deleting submission: %s", err.Error()),
+		})
+	}
+
+	team, err := models.GetTeamByID(submission.TeamID.String())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"detail": fmt.Sprintf("Error getting team: %s", err.Error())})
+	}
+
+	if team == nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"detail": "Team not found",
+		})
+	}
+
+	team.Submitted = false
 	err = team.UpdateTeam()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -76,7 +145,7 @@ func submitLinks(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"detail": "Submission successful",
+		"detail": "Submission successfully deleted",
 	})
 }
 
