@@ -1,14 +1,14 @@
 #!/bin/sh
 
-# Vitty
+# Hexathon
 # Handy set of commands to run to get a new server up and running
-if [ "$1" = "local" ]; then
+if [ "$1" = "prod" ]; then
     shift # Discard the first argument
-    environment="local"
-    file="docker-compose-local.yaml"
-else
     environment="production"
     file="docker-compose-prod.yaml"
+else
+    environment="local"
+    file="docker-compose-local.yaml"
 fi
 command=$1
 
@@ -28,8 +28,8 @@ if [ -z "$command" ]; then
     echo "Usage: hex [env] [command]"
     echo
     echo "Available environments:"
-    echo "  local: Local development environment"
-    echo "  production: Production environment (default)"
+    echo "  local: Local development environment (default)"
+    echo "  prod: Production environment"
     echo
     echo "Available commands:"
     echo "  up: Start the server"
@@ -108,6 +108,14 @@ fi
 # Management commands
 if [ "$command" = "cli" ]; then
     shift # Discard the first argument
-    docker compose -f "$file" run --rm hexathon-api ./bin/hex-api "$@"
+    docker compose -f "$file" run --rm api ./bin/hex-api "$@"
     exit 1
 fi
+
+if [ "$command" = "psql" ]; then
+    docker compose -f "$file" exec -it postgres psql -U postgres postgres
+    exit 1
+fi
+
+
+docker compose -f "$file" "$@"
