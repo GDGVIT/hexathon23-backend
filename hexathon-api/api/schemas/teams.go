@@ -43,15 +43,16 @@ func TeamListSerializer(teams []models.Team) []map[string]interface{} {
 // TeamLoginSerializer for displaying team data after login
 func TeamLoginSerializer(team models.Team, token string) map[string]interface{} {
 	return map[string]interface{}{
-		"id":          team.ID,
-		"name":        team.Name,
-		"logo":        team.Logo,
-		"members":     ParticipantListSerializer(team.Members),
-		"role":        team.Role,
-		"amount":      team.Amount,
-		"items":       ItemListSerializer(team.ItemsPurchased),
-		"items_count": len(team.ItemsPurchased),
-		"token":       token,
+		"id":                team.ID,
+		"name":              team.Name,
+		"logo":              team.Logo,
+		"members":           ParticipantListSerializer(team.Members),
+		"role":              team.Role,
+		"amount":            team.Amount,
+		"items":             ItemListSerializer(team.ItemsPurchased),
+		"items_count":       len(team.ItemsPurchased),
+		"token":             token,
+		"problem_statement": ProblemStatementSerializer(team.ProblemStatement),
 	}
 }
 

@@ -59,8 +59,7 @@ func getCheckedInParticipants(c *fiber.Ctx) error {
 
 // Get all participants
 func getAllParticipants(c *fiber.Ctx) error {
-	var participants []models.Participant
-	var err error
+	participants, err := models.GetParticipants()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"detail": fmt.Sprintf("Error getting participants: %s", err.Error())})

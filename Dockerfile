@@ -1,5 +1,5 @@
 # BUILD IMAGE
-FROM golang:1.19.3-alpine3.15 AS builder
+FROM golang:1.22.2-alpine3.19 AS builder
 
 WORKDIR /usr/src/app
 
@@ -15,7 +15,7 @@ COPY ./hexathon-api ./
 RUN go build -o bin/hex-api
 
 # RUNNER IMAGE
-FROM alpine:3.15 AS runner
+FROM alpine:3.19 AS runner
 
 WORKDIR /usr/src/app
 

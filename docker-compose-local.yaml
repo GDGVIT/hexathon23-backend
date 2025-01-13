@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  hexathon-api:
+  api:
     build:
       context: .
       dockerfile: Dockerfile
