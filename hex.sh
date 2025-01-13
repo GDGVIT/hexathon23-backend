@@ -108,7 +108,7 @@ fi
 # Management commands
 if [ "$command" = "cli" ]; then
     shift # Discard the first argument
-    docker compose -f "$file" run --rm api ./bin/hex-api "$@"
+    docker compose -f "$file" run --rm hexathon-api ./bin/hex-api "$@"
     exit 1
 fi
 
