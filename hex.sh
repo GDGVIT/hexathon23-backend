@@ -2,13 +2,13 @@
 
 # Hexathon
 # Handy set of commands to run to get a new server up and running
-if [ "$1" = "prod" ]; then
+if [ "$1" = "local" ]; then
     shift # Discard the first argument
-    environment="production"
-    file="docker-compose-prod.yaml"
-else
     environment="local"
     file="docker-compose-local.yaml"
+else
+    environment="production"
+    file="docker-compose-prod.yaml"
 fi
 command=$1
 

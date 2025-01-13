@@ -14,10 +14,10 @@ func NewWebApi() *fiber.App {
 	app.Use(logger.New())
 	app.Use(cors.New(
 		cors.Config{
-			AllowOrigins:     "*",
-			AllowHeaders:     "*",
-			AllowCredentials: true,
-			AllowMethods:     "*",
+			AllowOrigins: "*",
+			AllowHeaders: "*",
+			// AllowCredentials: true,
+			AllowMethods: "*",
 		},
 	))
 
