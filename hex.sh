@@ -28,8 +28,8 @@ if [ -z "$command" ]; then
     echo "Usage: hex [env] [command]"
     echo
     echo "Available environments:"
-    echo "  local: Local development environment (default)"
-    echo "  prod: Production environment"
+    echo "  local: Local development environment"
+    echo "  prod: Production environment (default)"
     echo
     echo "Available commands:"
     echo "  up: Start the server"
