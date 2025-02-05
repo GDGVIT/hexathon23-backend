@@ -10,12 +10,13 @@ import (
 )
 
 // teamsCommands is the list of commands related to teams
-var teamsCommands = []*cli.Command{{
-	Name:    "create-admin-team",
-	Aliases: []string{"cat"},
-	Usage:   "Creates an admin team",
-	Action:  createAdminTeam,
-},
+var teamsCommands = []*cli.Command{
+	{
+		Name:    "create-admin-team",
+		Aliases: []string{"cat"},
+		Usage:   "Creates an admin team",
+		Action:  createAdminTeam,
+	},
 	{
 		Name:    "create-team",
 		Aliases: []string{"ct"},
@@ -39,7 +40,8 @@ var teamsCommands = []*cli.Command{{
 		Aliases: []string{"dt"},
 		Usage:   "Deletes a team",
 		Action:  deleteTeam,
-	}}
+	},
+}
 
 // Creates an admin team with the given name and password
 func createAdminTeam(c *cli.Context) error {
