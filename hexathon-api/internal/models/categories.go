@@ -50,6 +50,12 @@ func GetCategoryByID(id string) (*Category, error) {
 	return &category, err
 }
 
+func GetCategoryIDByName(name string) (*Category, error) {
+	var category Category
+	err := database.DB.Preload(clause.Associations).Where("name ILIKE ?", name).First(&category).Error
+	return &category, err
+}
+
 // GetCategories returns a list of all categories
 func GetCategories() ([]Category, error) {
 	var categories []Category

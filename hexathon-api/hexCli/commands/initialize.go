@@ -11,4 +11,5 @@ func AddCommands(app *cli.App) {
 	app.Commands = append(app.Commands, teamsCommands...)
 	app.Commands = append(app.Commands, itemsCommands...)
 	app.Commands = append(app.Commands, participantCommands...)
+	app.Commands = append(app.Commands, problemCommands...)
 }
