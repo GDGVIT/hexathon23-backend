@@ -4,31 +4,32 @@ import (
 	"encoding/csv"
 	"fmt"
 	"os"
-	"strconv"
 
 	"github.com/GDGVIT/hexathon23-backend/hexathon-api/internal/models"
 	"github.com/urfave/cli/v2"
 )
 
 // categoriesCommands is the list of commands related to categories
-var categoriesCommands = []*cli.Command{
+var problemCommands = []*cli.Command{
 	{
-		Name:    "load-categories",
-		Aliases: []string{"lc"},
-		Usage:   "Loads categories from the csv",
-		Action:  loadCategories,
+		Name:    "load-problem-statements",
+		Aliases: []string{"lps"},
+		Usage:   "Loads problem statements from the csv",
+		Action:  loadProblemStatements,
 	},
 }
 
 // Index in csv file for each column; iota auto increments
 const (
-	category_name int = iota
-	category_photo_url
-	category_description
-	category_maxitems
+	problem_name int = iota
+	problem_oneline
+	problem_description
 )
 
-func loadCategories(c *cli.Context) error {
+func loadProblemStatements(c *cli.Context) error {
+	dir, _ := os.Getwd()
+	fmt.Println(dir)
+
 	path := c.Args().Get(0)
 
 	if path == "" {
@@ -43,6 +44,8 @@ func loadCategories(c *cli.Context) error {
 		fmt.Println(err)
 		return nil
 	}
+
+	defer fd.Close()
 
 	fileReader := csv.NewReader(fd)
 	records, err := fileReader.ReadAll()
@@ -63,20 +66,14 @@ func loadCategories(c *cli.Context) error {
 		// 	continue
 		// }
 
-		maxItems, err := strconv.Atoi(record[category_maxitems])
-		if err != nil {
-			fmt.Printf("Invalid max items for %s: %s", record[category_name], record[category_maxitems])
-		}
-
-		// Each record is made into a category object
-		category := &models.Category{
-			Name:        record[category_name],
-			PhotoURL:    record[category_photo_url],
-			Description: record[category_description],
-			MaxItems:    maxItems,
+		// Each record is made into a problemStatement object
+		problemStatement := &models.ProblemStatement{
+			Name:        record[problem_name],
+			OneLiner:    record[problem_oneline],
+			Description: record[problem_description],
 		}
 		// Writing the object to database
-		err = category.CreateCategory()
+		err = problemStatement.CreateProblemStatement()
 
 		if err != nil {
 			fmt.Println(err)
