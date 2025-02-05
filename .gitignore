@@ -1,3 +1,4 @@
 .env/
 backups/
 hexathon.csv
+hexathon-api/hexCli/commands/seeds/participants.csv
