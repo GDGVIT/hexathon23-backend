@@ -171,9 +171,9 @@ Authorization: Bearer <token>
 
 ### Success Responses
 Most successful requests return JSON with relevant data and appropriate HTTP status codes:
-- `200 OK`: Successful GET, PUT, POST requests
-- `201 Created`: Successful resource creation
-- `202 Accepted`: Successful update
+- `200 OK`: Successful GET requests and some POST operations
+- `201 Created`: Successful resource creation (POST)
+- `202 Accepted`: Successful resource update (PUT)
 - `204 No Content`: Successful deletion
 
 ### Error Responses
